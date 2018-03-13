@@ -16,6 +16,21 @@
 
 <body>
 
+    <template id="app-page-not-found">
+        <div>
+            <div class="title mb-2">Page Not Found</div>
+            <span>
+                The page you are looking for could not be found.
+            </span>
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-page-not-found', {
+            template: '#app-page-not-found'
+        });
+    </script>
+
     <template id="app-home">
         <div>
             <div class="title mb-2">Welcome</div>
@@ -183,8 +198,10 @@
             // ----------------------------------------------------------------
             router: new VueRouter({
                 routes: [
-                    { path: '/', component: Vue.component('app-home') },
-                    { path: '/roster', component: Vue.component('app-roster') }
+                    { path: '/', redirect: '/home' },
+                    { path: '/home', component: Vue.component('app-home') },
+                    { path: '/roster', component: Vue.component('app-roster') },
+                    { path: '*', component: Vue.component('app-page-not-found') }
                 ]
             }),
             // ----------------------------------------------------------------
