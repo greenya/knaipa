@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
+    <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/vuex"></script>
+    <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
+    <script src="https://unpkg.com/vue-i18n/dist/vue-i18n.js"></script>
+    <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
+    <script src="ajax.js"></script>
+    <script src="bnapi.js"></script>
+</head>
+
+<body>
+
+    <template id="app-home">
+        <div>
+            <div class="title mb-2">Welcome</div>
+            <span>
+                Hello and welcome to our small community! This page should say something smart and funny about us, too bad nothing comes
+                to my mind at this very moment.
+            </span>
+            <div class="title mt-4 mb-2">Links</div>
+            <ul class="ml-3">
+                <li>Discord <a href="/">channel</a></li>
+                <li>Recruting forum <a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17618053653">thread</a></li>
+                <li>Looking for players forum <a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17615632657">thread</a></li>
+            </ul>
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-home', {
+            template: '#app-home'
+        });
+    </script>
+
+    <template id="app-member-list">
+        <div>
+            <v-list v-if="displayMembers.length > 0" two-line>
+                <div v-for="(member, index) in displayMembers">
+                    <v-list-tile avatar :key="index" @click="">
+                        <v-list-tile-avatar>
+                            <img :src="member._thumbnail">
+                        </v-list-tile-avatar>
+                        <v-list-tile-content>
+                            <v-list-tile-title>{{ member.name }}</v-list-tile-title>
+                            <v-list-tile-sub-title>
+                                Level {{ member.level }} {{ member._race }} <span v-if="member.spec">{{ member.spec.name }}</span> {{ member._class }}
+                            </v-list-tile-sub-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </div>
+            </v-list>
+            <span v-else>
+                No members found.
+            </span>
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-member-list', {
+            template: '#app-member-list',
+            props: [ 'members' ],
+            computed: {
+                displayMembers: function () {
+                    return this.members.sort(function (a, b) {
+                        var name1 = a.name + a.realm;
+                        var name2 = b.name + b.realm;
+                        return name1.localeCompare(name2);
+                    });
+                }
+            }
+        });
+    </script>
+
+    <template id="app-roster">
+        <div>
+            <v-alert v-if="error" type="error" :value="true">
+                <div class="title mb-4">Failed to load list of guild members</div>
+                <code class="pa-2">{{ error }}</code>
+                <div class="text-xs-right">
+                    <v-btn :loading="isLoading" :disabled="isLoading" @click.native="reload()">Try again</v-btn>
+                </div>
+            </v-alert>
+            <v-progress-circular v-else-if="isLoading" indeterminate color="primary"></v-progress-circular>
+            <app-member-list v-else-if="members" v-bind:members="members"></app-member-list>
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-roster', {
+            template: '#app-roster',
+            data: () => ({
+                isLoading: false,
+                error: false,
+                members: null,
+            }),
+            mounted: function () {
+                if (this.$store.state.guild.members) {
+                    this.members = this.$store.state.guild.members;
+                } else {
+                    this.reload();
+                }
+            },
+            methods: {
+                reload: function () {
+                    this.isLoading = true;
+                    this.$store.dispatch('load-guild-members').then((members) => {
+                        this.members = members;
+                        this.isLoading = false;
+                    }).catch((error) => {
+                        console.error(error);
+                        this.error = error.message;
+                        this.isLoading = false;
+                    });
+                }
+            }
+        });
+    </script>
+
+    <div id="app">
+        <v-app v-if="error">
+            <v-alert v-if="error" type="error" :value="true">
+                <div class="title mb-4">Application failed to load essential game data</div>
+                <code class="pa-2">{{ error }}</code>
+                <div class="text-xs-right">
+                    <v-btn :loading="isLoading" :disabled="isLoading" @click.native="reload()">Try again</v-btn>
+                </div>
+            </v-alert>
+        </v-app>
+        <v-app v-else-if="isLoading">
+            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+        </v-app>
+        <v-app v-else>
+            <v-toolbar app tabs>
+            <!--v-toolbar app tabs dark color="blue"-->
+                <v-toolbar-side-icon></v-toolbar-side-icon>
+                <v-toolbar-title>{{ $t('guild.title') }}</v-toolbar-title>
+                <v-tabs align-with-title slot="extension" v-model="tab">
+                <!--v-tabs align-with-title slot="extension" v-model="tab" light color="yellow"-->
+                    <v-tab @click="$router.push('/')">Home</v-tab>
+                    <v-tab @click="$router.push('/roster')">Roster</v-tab>
+                </v-tabs>
+            </v-toolbar>
+            <v-content>
+                <v-container fluid>
+                    <router-view></router-view>
+                </v-container>
+            </v-content>
+            <v-footer app height="auto">
+                <span class="ma-3">Ukrainian guild on EU Terokkar</span>
+            </v-footer>
+        </v-app>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: () => ({
+                isLoading: true,
+                error: false,
+                drawer: null,
+                tab: null
+            }),
+            mounted: function () {
+                this.reload();
+            },
+            methods: {
+                reload: function () {
+                    this.isLoading = true;
+                    this.$store.dispatch('load-game-data').then(() => {
+                        this.isLoading = false;
+                    }).catch((error) => {
+                        this.error = error;
+                        this.isLoading = false;
+                    });
+                }
+            },
+            // ----------------------------------------------------------------
+            router: new VueRouter({
+                routes: [
+                    { path: '/', component: Vue.component('app-home') },
+                    { path: '/roster', component: Vue.component('app-roster') }
+                ]
+            }),
+            // ----------------------------------------------------------------
+            store: new Vuex.Store({
+                state: {
+                    bnet: {
+                        apikey: 'rt5ajdz37zrmecdtrxwgyyyxhqujkayw',
+                        locale: 'en_GB',
+                        realm:  'Terokkar',
+                        guild:  'Knaipa Variativ LV'
+                    },
+                    game: {
+                        races: null,
+                        classes: null
+                    },
+                    guild: {
+                        members: null
+                    }
+                },
+                mutations: {
+                    'set-game-races': function (state, races) {
+                        state.game.races = races;
+                    },
+                    'set-game-classes': function (state, classes) {
+                        state.game.classes = classes;
+                    },
+                    'set-guild-members': function (state, members) {
+                        state.guild.members = members;
+                    }
+                },
+                actions: {
+                    'load-game-data': ({ state, commit }) => {
+                        return Promise.all([
+                            bnapi.wow.data.getCharacterRaces(state.bnet.apikey, state.bnet.locale),
+                            bnapi.wow.data.getCharacterClasses(state.bnet.apikey, state.bnet.locale)
+                        ]).then(([ races, classes ]) => {
+                            var racesResult = {};
+                            for (var i = 0; i < races.length; ++i) {
+                                racesResult[ races[ i ].id ] = races[ i ].name;
+                            }
+                            commit('set-game-races', racesResult);
+
+                            var classesResult = {};
+                            for (var i = 0; i < classes.length; ++i) {
+                                classesResult[ classes[ i ].id ] = classes[ i ].name;
+                            }
+                            commit('set-game-classes', classesResult);
+                        });
+                    },
+                    'load-guild-members': ({ state, commit }) => {
+                        return bnapi.wow.guild.getMembers(state.bnet.apikey, state.bnet.locale, state.bnet.realm, state.bnet.guild).then((members) => {
+                            var result = [];
+                            for (var i = 0; i < members.length; ++i) {
+                                var c = members[ i ].character;
+                                result.push({
+                                    ...c,
+                                    _race: state.game.races[ c.race ],
+                                    _class: state.game.classes[ c.class ],
+                                    _grank: members[ i ].rank,
+                                    _thumbnail: 'https://render-eu.worldofwarcraft.com/character/' + c.thumbnail
+                                        + '?alt=/wow/static/images/2d/avatar/' + c.race + '-' + c.gender + '.jpg',
+                                    //_specicon: c.spec ? 'https://render-eu.worldofwarcraft.com/icons/18/' + c.spec.icon + '.jpg' : null,
+                                    //_armory: 'https://worldofwarcraft.com/' + state.bnet.locale + '/character/' + c.realm + '/' + c.name,
+                                    //_wowprogress: 'https://www.wowprogress.com/character/eu/' + c.realm +  '/' + c.name,
+                                    //_raiderio: 'https://raider.io/characters/eu/' + c.realm +  '/' + c.name,
+                                });
+                            }
+                            commit('set-guild-members', result);
+                            return result;
+                        });
+                    }
+                }
+            }),
+            // ----------------------------------------------------------------
+            i18n: new VueI18n({
+                locale: 'en',
+                messages: {
+                    en: {
+                        guild: {
+                            title: 'Knaipa Variativ'
+                        }
+                    },
+                    ua: {
+                        guild: {
+                            title: 'Кнайпа Варʼятів'
+                        }
+                    }
+                }
+            })
+        });
+    </script>
+
+</body>
+
+</html>
