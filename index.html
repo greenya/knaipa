@@ -17,12 +17,12 @@
 <body>
 
     <template id="app-page-not-found">
-        <div>
-            <div class="title mb-2">Page Not Found</div>
+        <v-container>
+            <div class="title my-2">Page Not Found</div>
             <span>
                 The page you are looking for could not be found.
             </span>
-        </div>
+        </v-container>
     </template>
 
     <script>
@@ -32,19 +32,19 @@
     </script>
 
     <template id="app-home">
-        <div>
-            <div class="title mb-2">Welcome</div>
+        <v-container>
+            <div class="display-1 my-2">Welcome</div>
             <span>
                 Hello and welcome to our small community! This page should say something smart and funny about us, too bad nothing comes
                 to my mind at this very moment.
             </span>
-            <div class="title mt-4 mb-2">Links</div>
+            <div class="title mb-2 mt-4">Links</div>
             <ul class="ml-3">
                 <li>Discord <a href="/">channel</a></li>
                 <li>Recruting forum <a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17618053653">thread</a></li>
                 <li>Looking for players forum <a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17615632657">thread</a></li>
             </ul>
-        </div>
+        </v-container>
     </template>
 
     <script>
@@ -93,17 +93,28 @@
     </script>
 
     <template id="app-roster">
-        <div>
+        <v-container>
+            <v-toolbar flat>
+                <v-toolbar-title>Roster</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-toolbar-items class="hidden-xs-only">
+                    <v-btn :loading="isLoading" :disabled="isLoading" @click="reload()" flat><v-icon left>refresh</v-icon>Reload</v-btn>
+                </v-toolbar-items>
+                <v-toolbar-items class="hidden-sm-and-up">
+                    <v-btn :loading="isLoading" :disabled="isLoading" @click="reload()" flat fab><v-icon>refresh</v-icon></v-btn>
+                </v-toolbar-items>
+                <v-text-field :disabled="isLoading" flat clearable append-icon="search" v-model="searchtext" class="ml-3" style="max-width: 200px;"></v-text-field>
+            </v-toolbar>
             <v-alert v-if="error" type="error" :value="true">
                 <div class="title mb-4">Failed to load list of guild members</div>
-                <code class="pa-2">{{ error }}</code>
-                <div class="text-xs-right">
+                <code class="pa-3">{{ error }}</code>
+                <div class="text-xs-right mt-1">
                     <v-btn :loading="isLoading" :disabled="isLoading" @click.native="reload()">Try again</v-btn>
                 </div>
             </v-alert>
             <v-progress-circular v-else-if="isLoading" indeterminate color="primary"></v-progress-circular>
             <app-member-list v-else-if="members" v-bind:members="members"></app-member-list>
-        </div>
+        </v-container>
     </template>
 
     <script>
@@ -113,6 +124,7 @@
                 isLoading: false,
                 error: false,
                 members: null,
+                searchtext: ''
             }),
             mounted: function () {
                 if (this.$store.state.guild.members) {
@@ -141,8 +153,8 @@
         <v-app v-if="error">
             <v-alert v-if="error" type="error" :value="true">
                 <div class="title mb-4">Application failed to load essential game data</div>
-                <code class="pa-2">{{ error }}</code>
-                <div class="text-xs-right">
+                <code class="pa-3">{{ error }}</code>
+                <div class="text-xs-right mt-1">
                     <v-btn :loading="isLoading" :disabled="isLoading" @click.native="reload()">Try again</v-btn>
                 </div>
             </v-alert>
@@ -151,23 +163,26 @@
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </v-app>
         <v-app v-else>
-            <v-toolbar app tabs>
-            <!--v-toolbar app tabs dark color="blue"-->
+            <v-toolbar app>
                 <v-toolbar-side-icon></v-toolbar-side-icon>
                 <v-toolbar-title>{{ $t('guild.title') }}</v-toolbar-title>
-                <v-tabs align-with-title slot="extension" v-model="tab">
-                <!--v-tabs align-with-title slot="extension" v-model="tab" light color="yellow"-->
-                    <v-tab @click="$router.push('/')">Home</v-tab>
-                    <v-tab @click="$router.push('/roster')">Roster</v-tab>
-                </v-tabs>
+                <v-spacer></v-spacer>
+                <v-toolbar-items class="hidden-xs-only">
+                    <v-btn @click="$router.push('/home')" flat><v-icon left>home</v-icon>Home</v-btn>
+                    <v-btn @click="$router.push('/roster')" flat><v-icon left>people</v-icon>Roster</v-btn>
+                    <v-btn @click="$router.push('/settings')" flat><v-icon left>settings</v-icon>Settings</v-btn>
+                </v-toolbar-items>
+                <v-toolbar-items class="hidden-sm-and-up">
+                    <v-btn @click="$router.push('/home')" flat fab><v-icon>home</v-icon></v-btn>
+                    <v-btn @click="$router.push('/roster')" flat fab><v-icon>people</v-icon></v-btn>
+                    <v-btn @click="$router.push('/settings')" flat fab><v-icon>settings</v-icon></v-btn>
+                </v-toolbar-items>
             </v-toolbar>
             <v-content>
-                <v-container fluid>
-                    <router-view></router-view>
-                </v-container>
+                <router-view></router-view>
             </v-content>
             <v-footer app height="auto">
-                <span class="ma-3">Ukrainian guild on EU Terokkar</span>
+                <span class="ma-3">{{ $t('guild.desc') }}</span>
             </v-footer>
         </v-app>
     </div>
@@ -190,7 +205,7 @@
                     this.$store.dispatch('load-game-data').then(() => {
                         this.isLoading = false;
                     }).catch((error) => {
-                        this.error = error;
+                        this.error = error.message;
                         this.isLoading = false;
                     });
                 }
@@ -281,12 +296,14 @@
                 messages: {
                     en: {
                         guild: {
-                            title: 'Knaipa Variativ'
+                            title: 'Knaipa Variativ',
+                            desc: 'Ukrainian guild on EU Terokkar'
                         }
                     },
                     ua: {
                         guild: {
-                            title: 'Кнайпа Варʼятів'
+                            title: 'Кнайпа Варʼятів',
+                            desc: 'Українська гільдія на сервері EU Terokkar'
                         }
                     }
                 }

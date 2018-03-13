@@ -3,7 +3,12 @@ bnapi = {};
 bnapi.parseError = function (status, body) {
     var error = status.code + ' ' + status.text;
     if (body.indexOf('{') === 0) {
-        error += ': ' + JSON.parse(body).reason;
+        var body = JSON.parse(body);
+        if (body.reason) {
+            error += ': ' + body.reason;
+        } else if (body.detail) {
+            error += ': ' + body.detail;
+        }
     }
     return new Error(error);
 };
