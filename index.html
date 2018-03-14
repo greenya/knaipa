@@ -152,7 +152,7 @@
     <template id="app-settings">
         <v-container>
             <div class="title my-2">Settings</div>
-            <v-checkbox label="Use dark theme" v-model="useDarkTheme"></v-checkbox>
+            <v-checkbox label="Use dark theme" v-model="dark"></v-checkbox>
         </v-container>
     </template>
 
@@ -160,14 +160,14 @@
         Vue.component('app-settings', {
             template: '#app-settings',
             data: () => ({
-                useDarkTheme: null
+                dark: null
             }),
             mounted: function () {
-                this.useDarkTheme = this.$store.state.prefs.useDarkTheme;
+                this.dark = this.$store.state.prefs.dark;
             },
             watch: {
-                useDarkTheme: function (value) {
-                    this.$store.commit('set-prefs-use-dark-theme', value);
+                dark: function (value) {
+                    this.$store.commit('set-prefs-dark', value);
                 }
             }
         });
@@ -186,7 +186,7 @@
         <v-app v-else-if="isLoading">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </v-app>
-        <v-app v-else :dark="$store.state.prefs.useDarkTheme">
+        <v-app v-else :dark="$store.state.prefs.dark">
             <v-toolbar app>
                 <v-toolbar-side-icon></v-toolbar-side-icon>
                 <v-toolbar-title>{{ $t('guild.title') }}</v-toolbar-title>
@@ -259,7 +259,7 @@
                         members: null
                     },
                     prefs: {
-                        useDarkTheme: !!localStorage.useDarkTheme
+                        dark: localStorage.dark === 'true'
                     }
                 },
                 mutations: {
@@ -272,8 +272,8 @@
                     'set-guild-members': function (state, members) {
                         state.guild.members = members;
                     },
-                    'set-prefs-use-dark-theme': function (state, useDarkTheme) {
-                        state.prefs.useDarkTheme = localStorage.useDarkTheme = useDarkTheme;
+                    'set-prefs-dark': function (state, dark) {
+                        localStorage.dark = state.prefs.dark = dark;
                     }
                 },
                 actions: {
