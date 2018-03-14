@@ -12,6 +12,11 @@
     <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
     <script src="ajax.js"></script>
     <script src="bnapi.js"></script>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -173,7 +178,7 @@
         });
     </script>
 
-    <div id="app">
+    <div id="app" v-cloak>
         <v-app v-if="error">
             <v-alert v-if="error" type="error" :value="true">
                 <div class="title mb-4">Application failed to load essential game data</div>
