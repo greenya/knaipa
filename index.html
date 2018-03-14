@@ -33,7 +33,7 @@
 
     <template id="app-home">
         <v-container>
-            <div class="display-1 my-2">Welcome</div>
+            <div class="title my-2">Welcome</div>
             <span>
                 Hello and welcome to our small community! This page should say something smart and funny about us, too bad nothing comes
                 to my mind at this very moment.
@@ -149,6 +149,30 @@
         });
     </script>
 
+    <template id="app-settings">
+        <v-container>
+            <div class="title my-2">Settings</div>
+            <v-checkbox label="Use dark theme" v-model="useDarkTheme"></v-checkbox>
+        </v-container>
+    </template>
+
+    <script>
+        Vue.component('app-settings', {
+            template: '#app-settings',
+            data: () => ({
+                useDarkTheme: null
+            }),
+            mounted: function () {
+                this.useDarkTheme = this.$store.state.prefs.useDarkTheme;
+            },
+            watch: {
+                useDarkTheme: function (value) {
+                    this.$store.commit('set-prefs-use-dark-theme', value);
+                }
+            }
+        });
+    </script>
+
     <div id="app">
         <v-app v-if="error">
             <v-alert v-if="error" type="error" :value="true">
@@ -162,7 +186,7 @@
         <v-app v-else-if="isLoading">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </v-app>
-        <v-app v-else>
+        <v-app v-else :dark="$store.state.prefs.useDarkTheme">
             <v-toolbar app>
                 <v-toolbar-side-icon></v-toolbar-side-icon>
                 <v-toolbar-title>{{ $t('guild.title') }}</v-toolbar-title>
@@ -192,9 +216,7 @@
             el: '#app',
             data: () => ({
                 isLoading: true,
-                error: false,
-                drawer: null,
-                tab: null
+                error: false
             }),
             mounted: function () {
                 this.reload();
@@ -216,6 +238,7 @@
                     { path: '/', redirect: '/home' },
                     { path: '/home', component: Vue.component('app-home') },
                     { path: '/roster', component: Vue.component('app-roster') },
+                    { path: '/settings', component: Vue.component('app-settings') },
                     { path: '*', component: Vue.component('app-page-not-found') }
                 ]
             }),
@@ -234,6 +257,9 @@
                     },
                     guild: {
                         members: null
+                    },
+                    prefs: {
+                        useDarkTheme: !!localStorage.useDarkTheme
                     }
                 },
                 mutations: {
@@ -245,6 +271,9 @@
                     },
                     'set-guild-members': function (state, members) {
                         state.guild.members = members;
+                    },
+                    'set-prefs-use-dark-theme': function (state, useDarkTheme) {
+                        state.prefs.useDarkTheme = localStorage.useDarkTheme = useDarkTheme;
                     }
                 },
                 actions: {
