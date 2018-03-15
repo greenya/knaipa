@@ -22,7 +22,7 @@
 <body>
 
     <template id="app-page-not-found">
-        <v-container>
+        <v-container v-once>
             <div class="title my-2">Page Not Found</div>
             <span>
                 The page you are looking for could not be found.
@@ -37,7 +37,7 @@
     </script>
 
     <template id="app-home">
-        <v-container>
+        <v-container v-once>
             <div class="title my-2">Welcome</div>
             <span>
                 Hello and welcome to our small community! This page should say something smart and funny about us, too bad nothing comes
@@ -93,13 +93,13 @@
             <v-toolbar flat>
                 <v-toolbar-title v-if="members">{{ $t('roster-members-shown', { shown: displayMembers.length, total: members.length }) }}</v-toolbar-title>
                 <v-spacer></v-spacer>
+                <v-text-field :disabled="isLoading" flat clearable append-icon="search" v-model="searchText" class="mr-3" style="max-width: 200px;"></v-text-field>
                 <v-toolbar-items class="hidden-xs-only">
                     <v-btn :loading="isLoading" :disabled="isLoading" @click="reload()" flat><v-icon left>refresh</v-icon>Reload</v-btn>
                 </v-toolbar-items>
                 <v-toolbar-items class="hidden-sm-and-up">
                     <v-btn :loading="isLoading" :disabled="isLoading" @click="reload()" flat fab><v-icon>refresh</v-icon></v-btn>
                 </v-toolbar-items>
-                <v-text-field :disabled="isLoading" flat clearable append-icon="search" v-model="searchText" class="ml-3" style="max-width: 200px;"></v-text-field>
             </v-toolbar>
             <v-alert v-if="error" type="error" :value="true">
                 <div class="title mb-4">Failed to load list of guild members</div>
@@ -108,7 +108,6 @@
                     <v-btn :loading="isLoading" :disabled="isLoading" @click.native="reload()">Try again</v-btn>
                 </div>
             </v-alert>
-            <v-progress-circular v-else-if="isLoading" indeterminate color="primary"></v-progress-circular>
             <app-member-list v-else-if="members" v-bind:members="displayMembers"></app-member-list>
         </v-container>
     </template>
@@ -118,7 +117,7 @@
             template: '#app-roster',
             data: () => ({
                 isLoading: false,
-                error: false,
+                error: null,
                 members: null,
                 searchText: ''
             }),
@@ -147,6 +146,8 @@
             methods: {
                 reload: function () {
                     this.isLoading = true;
+                    this.members = null;
+                    this.error = null;
                     this.$store.dispatch('load-guild-members').then((members) => {
                         this.members = members;
                         this.isLoading = false;
@@ -342,7 +343,7 @@
                     ua: {
                         'guild-title':          'Кнайпа Варʼятів',
                         'guild-location':       'Українська гільдія на сервері EU Terokkar',
-                        'roster-members-shown': '{shown} з {total} членів відображено'
+                        'roster-members-shown': '{shown} з {total} варʼятів відображено'
                     }
                 }
             })
