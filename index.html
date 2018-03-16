@@ -91,7 +91,7 @@
     <template id="app-roster">
         <v-container>
             <v-toolbar flat>
-                <v-toolbar-title v-if="members">{{ $t('roster-members-shown', { shown: displayMembers.length, total: members.length }) }}</v-toolbar-title>
+                <v-toolbar-title v-if="members">{{ $t('total-members-shown', { shown: displayMembers.length, total: members.length }) }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-text-field :disabled="isLoading" flat clearable append-icon="search" v-model="searchText" class="mr-3" style="max-width: 200px;"></v-text-field>
                 <v-toolbar-items class="hidden-xs-only">
@@ -163,8 +163,23 @@
 
     <template id="app-settings">
         <v-container>
-            <div class="title my-2">Settings</div>
-            <v-checkbox label="Use dark theme" v-model="dark"></v-checkbox>
+            <div class="title my-2">{{ $t('settings') }}</div>
+            <v-layout row wrap>
+                <v-flex xs12 sm6 class="py-2">
+                    <p>{{ $t('language') }}</p>
+                    <v-btn-toggle v-model="lang">
+                        <v-btn flat value="en">English</v-btn>
+                        <v-btn flat value="ua">Українська</v-btn>
+                    </v-btn-toggle>
+                </v-flex>
+                <v-flex xs12 sm6 class="py-2">
+                    <p>{{ $t('theme') }}</p>
+                    <v-btn-toggle v-model="theme">
+                        <v-btn flat value="light">{{ $t('theme-light') }}</v-btn>
+                        <v-btn flat value="dark">{{ $t('theme-dark') }}</v-btn>
+                    </v-btn-toggle>
+                </v-flex>
+            </v-layout>
         </v-container>
     </template>
 
@@ -172,14 +187,32 @@
         Vue.component('app-settings', {
             template: '#app-settings',
             data: () => ({
-                dark: null
+                lang: null,
+                langPrev: null,
+                theme: null,
+                themePrev: null
             }),
             mounted: function () {
-                this.dark = this.$store.state.prefs.dark;
+                this.lang = this.$store.state.prefs.lang;
+                this.theme = this.$store.state.prefs.theme;
             },
             watch: {
-                dark: function (value) {
-                    this.$store.commit('set-prefs-dark', value);
+                lang: function (value) {
+                    if (!value) {
+                        this.lang = this.langPrev;
+                        return;
+                    }
+                    this.langPrev = value;
+                    this.$store.commit('set-prefs-lang', value);
+                    this.$i18n.locale = value;
+                },
+                theme: function (value) {
+                    if (!value) {
+                        this.theme = this.themePrev;
+                        return;
+                    }
+                    this.themePrev = value;
+                    this.$store.commit('set-prefs-theme', value);
                 }
             }
         });
@@ -198,17 +231,17 @@
         <v-app v-else-if="isLoading">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </v-app>
-        <v-app v-else :dark="$store.state.prefs.dark">
+        <v-app v-else :light="$store.state.prefs.theme === 'light'" :dark="$store.state.prefs.theme === 'dark'">
             <v-toolbar app>
                 <v-toolbar-side-icon></v-toolbar-side-icon>
                 <v-toolbar-title>{{ $t('guild-title') }}</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-toolbar-items class="hidden-xs-only">
-                    <v-btn @click="$router.push('/home')" flat><v-icon left>home</v-icon>Home</v-btn>
-                    <v-btn @click="$router.push('/roster')" flat><v-icon left>people</v-icon>Roster</v-btn>
-                    <v-btn @click="$router.push('/settings')" flat><v-icon left>settings</v-icon>Settings</v-btn>
+                <v-toolbar-items class="hidden-sm-and-down">
+                    <v-btn @click="$router.push('/home')" flat><v-icon left>home</v-icon>{{ $t('home') }}</v-btn>
+                    <v-btn @click="$router.push('/roster')" flat><v-icon left>people</v-icon>{{ $t('roster') }}</v-btn>
+                    <v-btn @click="$router.push('/settings')" flat><v-icon left>settings</v-icon>{{ $t('settings') }}</v-btn>
                 </v-toolbar-items>
-                <v-toolbar-items class="hidden-sm-and-up">
+                <v-toolbar-items class="hidden-md-and-up">
                     <v-btn @click="$router.push('/home')" flat fab><v-icon>home</v-icon></v-btn>
                     <v-btn @click="$router.push('/roster')" flat fab><v-icon>people</v-icon></v-btn>
                     <v-btn @click="$router.push('/settings')" flat fab><v-icon>settings</v-icon></v-btn>
@@ -224,6 +257,128 @@
     </div>
 
     <script>
+
+        const store = new Vuex.Store({
+            state: {
+                bnet: {
+                    apikey: 'rt5ajdz37zrmecdtrxwgyyyxhqujkayw',
+                    locale: 'en_GB',
+                    realm:  'Terokkar',
+                    guild:  'Knaipa Variativ LV'
+                },
+                game: {
+                    races: null,
+                    classes: null
+                },
+                guild: {
+                    members: null
+                },
+                prefs: {
+                    lang: localStorage.lang === 'ua' ? 'ua' : 'en',
+                    theme: localStorage.theme === 'dark' ? 'dark' : 'light'
+                }
+            },
+            mutations: {
+                'set-game-races': function (state, races) {
+                    state.game.races = races;
+                },
+                'set-game-classes': function (state, classes) {
+                    state.game.classes = classes;
+                },
+                'set-guild-members': function (state, members) {
+                    state.guild.members = members;
+                },
+                'set-prefs-lang': function (state, lang) {
+                    localStorage.lang = state.prefs.lang = lang;
+                },
+                'set-prefs-theme': function (state, theme) {
+                    localStorage.theme = state.prefs.theme = theme;
+                }
+            },
+            actions: {
+                'load-game-data': ({ state, commit }) => {
+                    return Promise.all([
+                        bnapi.wow.data.getCharacterRaces(state.bnet.apikey, state.bnet.locale),
+                        bnapi.wow.data.getCharacterClasses(state.bnet.apikey, state.bnet.locale)
+                    ]).then(([ races, classes ]) => {
+                        var racesResult = {};
+                        for (var i = 0; i < races.length; ++i) {
+                            racesResult[ races[ i ].id ] = races[ i ].name;
+                        }
+                        commit('set-game-races', racesResult);
+
+                        var classesResult = {};
+                        for (var i = 0; i < classes.length; ++i) {
+                            classesResult[ classes[ i ].id ] = classes[ i ].name;
+                        }
+                        commit('set-game-classes', classesResult);
+                    });
+                },
+                'load-guild-members': ({ state, commit }) => {
+                    return bnapi.wow.guild.getMembers(state.bnet.apikey, state.bnet.locale, state.bnet.realm, state.bnet.guild).then((members) => {
+                        var result = [];
+                        for (var i = 0; i < members.length; ++i) {
+                            var c = members[ i ].character;
+                            result.push({
+                                ...c,
+                                _race: state.game.races[ c.race ],
+                                _class: state.game.classes[ c.class ],
+                                _grank: members[ i ].rank,
+                                _thumbnail: 'https://render-eu.worldofwarcraft.com/character/' + c.thumbnail
+                                    + '?alt=/wow/static/images/2d/avatar/' + c.race + '-' + c.gender + '.jpg',
+                                //_specicon: c.spec ? 'https://render-eu.worldofwarcraft.com/icons/18/' + c.spec.icon + '.jpg' : null,
+                                //_armory: 'https://worldofwarcraft.com/' + state.bnet.locale + '/character/' + c.realm + '/' + c.name,
+                                //_wowprogress: 'https://www.wowprogress.com/character/eu/' + c.realm +  '/' + c.name,
+                                //_raiderio: 'https://raider.io/characters/eu/' + c.realm +  '/' + c.name,
+                            });
+                        }
+                        commit('set-guild-members', result);
+                        return result;
+                    });
+                }
+            }
+        });
+
+        const router = new VueRouter({
+            routes: [
+                { path: '/', redirect: '/home' },
+                { path: '/home', component: Vue.component('app-home') },
+                { path: '/roster', component: Vue.component('app-roster') },
+                { path: '/settings', component: Vue.component('app-settings') },
+                { path: '*', component: Vue.component('app-page-not-found') }
+            ]
+        });
+
+        const i18n = new VueI18n({
+            locale: store.state.prefs.lang,
+            messages: {
+                en: {
+                    'guild-title':          'Knaipa Variativ',
+                    'guild-location':       'Ukrainian guild on EU Terokkar',
+                    'home':                 'Home',
+                    'roster':               'Roster',
+                    'settings':             'Settings',
+                    'total-members-shown': '{shown} of {total} members shown',
+                    'language':             'Language',
+                    'theme':                'Theme',
+                    'theme-light':          'Light',
+                    'theme-dark':           'Dark',
+                },
+                ua: {
+                    'guild-title':          'Кнайпа Варʼятів',
+                    'guild-location':       'Українська гільдія на сервері EU Terokkar',
+                    'home':                 'Головна',
+                    'roster':               'Реєстр',
+                    'settings':             'Налаштування',
+                    'total-members-shown': '{shown} з {total} варʼятів відображено',
+                    'language':             'Мова',
+                    'theme':                'Оформлення',
+                    'theme-light':          'Світле',
+                    'theme-dark':           'Темне',
+                }
+            }
+        });
+
         new Vue({
             el: '#app',
             data: () => ({
@@ -244,109 +399,9 @@
                     });
                 }
             },
-            // ----------------------------------------------------------------
-            router: new VueRouter({
-                routes: [
-                    { path: '/', redirect: '/home' },
-                    { path: '/home', component: Vue.component('app-home') },
-                    { path: '/roster', component: Vue.component('app-roster') },
-                    { path: '/settings', component: Vue.component('app-settings') },
-                    { path: '*', component: Vue.component('app-page-not-found') }
-                ]
-            }),
-            // ----------------------------------------------------------------
-            store: new Vuex.Store({
-                state: {
-                    bnet: {
-                        apikey: 'rt5ajdz37zrmecdtrxwgyyyxhqujkayw',
-                        locale: 'en_GB',
-                        realm:  'Terokkar',
-                        guild:  'Knaipa Variativ LV'
-                    },
-                    game: {
-                        races: null,
-                        classes: null
-                    },
-                    guild: {
-                        members: null
-                    },
-                    prefs: {
-                        dark: localStorage.dark === 'true'
-                    }
-                },
-                mutations: {
-                    'set-game-races': function (state, races) {
-                        state.game.races = races;
-                    },
-                    'set-game-classes': function (state, classes) {
-                        state.game.classes = classes;
-                    },
-                    'set-guild-members': function (state, members) {
-                        state.guild.members = members;
-                    },
-                    'set-prefs-dark': function (state, dark) {
-                        localStorage.dark = state.prefs.dark = dark;
-                    }
-                },
-                actions: {
-                    'load-game-data': ({ state, commit }) => {
-                        return Promise.all([
-                            bnapi.wow.data.getCharacterRaces(state.bnet.apikey, state.bnet.locale),
-                            bnapi.wow.data.getCharacterClasses(state.bnet.apikey, state.bnet.locale)
-                        ]).then(([ races, classes ]) => {
-                            var racesResult = {};
-                            for (var i = 0; i < races.length; ++i) {
-                                racesResult[ races[ i ].id ] = races[ i ].name;
-                            }
-                            commit('set-game-races', racesResult);
-
-                            var classesResult = {};
-                            for (var i = 0; i < classes.length; ++i) {
-                                classesResult[ classes[ i ].id ] = classes[ i ].name;
-                            }
-                            commit('set-game-classes', classesResult);
-                        });
-                    },
-                    'load-guild-members': ({ state, commit }) => {
-                        return bnapi.wow.guild.getMembers(state.bnet.apikey, state.bnet.locale, state.bnet.realm, state.bnet.guild).then((members) => {
-                            var result = [];
-                            for (var i = 0; i < members.length; ++i) {
-                                var c = members[ i ].character;
-                                result.push({
-                                    ...c,
-                                    _race: state.game.races[ c.race ],
-                                    _class: state.game.classes[ c.class ],
-                                    _grank: members[ i ].rank,
-                                    _thumbnail: 'https://render-eu.worldofwarcraft.com/character/' + c.thumbnail
-                                        + '?alt=/wow/static/images/2d/avatar/' + c.race + '-' + c.gender + '.jpg',
-                                    //_specicon: c.spec ? 'https://render-eu.worldofwarcraft.com/icons/18/' + c.spec.icon + '.jpg' : null,
-                                    //_armory: 'https://worldofwarcraft.com/' + state.bnet.locale + '/character/' + c.realm + '/' + c.name,
-                                    //_wowprogress: 'https://www.wowprogress.com/character/eu/' + c.realm +  '/' + c.name,
-                                    //_raiderio: 'https://raider.io/characters/eu/' + c.realm +  '/' + c.name,
-                                });
-                            }
-                            commit('set-guild-members', result);
-                            return result;
-                        });
-                    }
-                }
-            }),
-            // ----------------------------------------------------------------
-            i18n: new VueI18n({
-                locale: 'en',
-                messages: {
-                    en: {
-                        'guild-title':          'Knaipa Variativ',
-                        'guild-location':       'Ukrainian guild on EU Terokkar',
-                        'roster-members-shown': '{shown} of {total} members shown'
-                    },
-                    ua: {
-                        'guild-title':          'Кнайпа Варʼятів',
-                        'guild-location':       'Українська гільдія на сервері EU Terokkar',
-                        'roster-members-shown': '{shown} з {total} варʼятів відображено'
-                    }
-                }
-            })
+            router,
+            store,
+            i18n
         });
     </script>
 
