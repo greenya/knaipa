@@ -12,11 +12,7 @@
     <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
     <script src="ajax.js"></script>
     <script src="bnapi.js"></script>
-    <style>
-        [v-cloak] {
-            display: none;
-        }
-    </style>
+    <style>[v-cloak] { display: none; };</style>
 </head>
 
 <body>
@@ -63,7 +59,7 @@
             <v-list v-if="members.length > 0" two-line>
                 <div v-for="(member, index) in members">
                     <v-list-tile avatar :key="index" @click="">
-                        <v-list-tile-avatar>
+                        <v-list-tile-avatar tile>
                             <img :src="member._thumbnail">
                         </v-list-tile-avatar>
                         <v-list-tile-content>
@@ -90,22 +86,19 @@
 
     <template id="app-roster">
         <v-container>
-            <v-toolbar flat>
-                <v-toolbar-title v-if="members">{{ $t('total-members-shown', { shown: displayMembers.length, total: members.length }) }}</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-text-field :disabled="isLoading" flat clearable append-icon="search" v-model="searchText" class="mr-3" style="max-width: 200px;"></v-text-field>
-                <v-toolbar-items class="hidden-xs-only">
-                    <v-btn :loading="isLoading" :disabled="isLoading" @click="reload()" flat><v-icon left>refresh</v-icon>Reload</v-btn>
-                </v-toolbar-items>
-                <v-toolbar-items class="hidden-sm-and-up">
-                    <v-btn :loading="isLoading" :disabled="isLoading" @click="reload()" flat fab><v-icon>refresh</v-icon></v-btn>
-                </v-toolbar-items>
-            </v-toolbar>
+            <v-layout row wrap>
+                <v-flex sm6 class="px-3">
+                    <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange"></v-select>
+                </v-flex>
+                <v-flex sm6 class="px-3">
+                    <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText"></v-text-field>
+                </v-flex>
+            </v-layout>
             <v-alert v-if="error" type="error" :value="true">
                 <div class="title mb-4">Failed to load list of guild members</div>
                 <code class="pa-3">{{ error }}</code>
                 <div class="text-xs-right mt-1">
-                    <v-btn :loading="isLoading" :disabled="isLoading" @click.native="reload()">Try again</v-btn>
+                    <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
                 </div>
             </v-alert>
             <app-member-list v-else-if="members" v-bind:members="displayMembers"></app-member-list>
@@ -116,11 +109,37 @@
         Vue.component('app-roster', {
             template: '#app-roster',
             data: () => ({
-                isLoading: false,
+                loading: false,
                 error: null,
                 members: null,
-                searchText: ''
+                searchText: '',
+                filterValue: [ 'all' ],
+                filterItems: [
+                    { text: 'All members', value: 'all' },
+                    { header: 'Levels' },
+                    { text: 'Max level', value: 'level-max' },
+                    { text: 'Low levels', value: 'level-low' },
+                ]
             }),
+            created: function () {
+                var classes = [];
+                Object.keys(this.$store.state.game.classes).forEach((i) => {
+                    classes.push({ text: this.$store.state.game.classes[ i ], value: 'class-' + i });
+                });
+                this.filterItems.push(
+                    { header: 'Classes' },
+                    ...classes.sort((a, b) => { return a.text.localeCompare(b.text); })
+                );
+
+                var races = [];
+                Object.keys(this.$store.state.game.races).forEach((i) => {
+                    races.push({ text: this.$store.state.game.races[ i ], value: 'race-' + i });
+                });
+                this.filterItems.push(
+                    { header: 'Races' },
+                    ...races.sort((a, b) => { return a.text.localeCompare(b.text); })
+                );
+            },
             mounted: function () {
                 if (this.$store.state.guild.members) {
                     this.members = this.$store.state.guild.members;
@@ -130,32 +149,90 @@
             },
             computed: {
                 displayMembers: function () {
-                    return this.members.filter((a) => {
-                        if (!this.searchText) {
-                            return true;
-                        } else {
-                            return a.name.toLowerCase().indexOf(this.searchText) >= 0;
-                        }
-                    }).sort(function (a, b) {
+                    return this.members.filter(this.filterMember).sort(function (a, b) {
                         var name1 = a.name + a.realm;
                         var name2 = b.name + b.realm;
                         return name1.localeCompare(name2);
                     });
+                },
+                filterHint: function () {
+                    if (this.members) {
+                        return this.$t('total-members-shown', { shown: this.displayMembers.length, total: this.members.length });
+                    } else {
+                        return this.$t('loading');
+                    }
                 }
             },
             methods: {
                 reload: function () {
-                    this.isLoading = true;
+                    this.loading = true;
                     this.members = null;
                     this.error = null;
                     this.$store.dispatch('load-guild-members').then((members) => {
                         this.members = members;
-                        this.isLoading = false;
+                        this.loading = false;
                     }).catch((error) => {
                         console.error(error);
                         this.error = error.message;
-                        this.isLoading = false;
+                        this.loading = false;
                     });
+                },
+                filterOnChange: function (value) {
+                    if (value.length === 0) {
+                        value.push('all');
+                    } else if (value.length === 2 && value[ 0 ] === 'all') {
+                        value.shift();
+                    } else if (value.length > 1 && value[ value.length - 1 ] === 'all') {
+                        while (value.length > 1) {
+                            value.shift();
+                        }
+                    }
+
+                    var levelMax = value.indexOf('level-max');
+                    var levelLow = value.indexOf('level-low');
+                    if (levelMax >= 0 && levelLow >= 0) {
+                        value.splice(Math.min(levelMax, levelLow), 1);
+                    }
+                },
+                filterMember: function (member) {
+                    if (this.searchText) {
+                        if (member.name.toLowerCase().indexOf(this.searchText) < 0) {
+                            return false;
+                        }
+                    }
+
+                    var okClass = undefined;
+                    var okRace = undefined;
+
+                    for (var i = 0; i < this.filterValue.length; ++i) {
+                        var [ type, key ] = this.filterValue[ i ].split('-');
+                        if (type === 'level') {
+                            if (key === 'max' && !member._levelmaxed) {
+                                return false;
+                            }
+                            if (key === 'low' && member._levelmaxed) {
+                                return false;
+                            }
+                        }
+                        if (type === 'class') {
+                            if (okClass === undefined) {
+                                okClass = false;
+                            }
+                            if (key == member.class) {
+                                okClass = true;
+                            }
+                        }
+                        if (type === 'race') {
+                            if (okRace === undefined) {
+                                okRace = false;
+                            }
+                            if (key == member.race) {
+                                okRace = true;
+                            }
+                        }
+                    }
+
+                    return okClass !== false && okRace !== false;
                 }
             }
         });
@@ -224,11 +301,11 @@
                 <div class="title mb-4">Application failed to load essential game data</div>
                 <code class="pa-3">{{ error }}</code>
                 <div class="text-xs-right mt-1">
-                    <v-btn :loading="isLoading" :disabled="isLoading" @click.native="reload()">Try again</v-btn>
+                    <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
                 </div>
             </v-alert>
         </v-app>
-        <v-app v-else-if="isLoading">
+        <v-app v-else-if="loading">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </v-app>
         <v-app v-else :light="$store.state.prefs.theme === 'light'" :dark="$store.state.prefs.theme === 'dark'">
@@ -303,7 +380,9 @@
                     ]).then(([ races, classes ]) => {
                         var racesResult = {};
                         for (var i = 0; i < races.length; ++i) {
-                            racesResult[ races[ i ].id ] = races[ i ].name;
+                            if (races[ i ].side === 'alliance') {
+                                racesResult[ races[ i ].id ] = races[ i ].name;
+                            }
                         }
                         commit('set-game-races', racesResult);
 
@@ -324,6 +403,7 @@
                                 _race: state.game.races[ c.race ],
                                 _class: state.game.classes[ c.class ],
                                 _grank: members[ i ].rank,
+                                _levelmaxed: c.level === 110,
                                 _thumbnail: 'https://render-eu.worldofwarcraft.com/character/' + c.thumbnail
                                     + '?alt=/wow/static/images/2d/avatar/' + c.race + '-' + c.gender + '.jpg',
                                 //_specicon: c.spec ? 'https://render-eu.worldofwarcraft.com/icons/18/' + c.spec.icon + '.jpg' : null,
@@ -360,6 +440,7 @@
                     'settings':             'Settings',
                     'total-members-shown': '{shown} of {total} members shown',
                     'language':             'Language',
+                    'loading':              'Loading...',
                     'theme':                'Theme',
                     'theme-light':          'Light',
                     'theme-dark':           'Dark',
@@ -372,6 +453,7 @@
                     'settings':             'Налаштування',
                     'total-members-shown': '{shown} з {total} варʼятів відображено',
                     'language':             'Мова',
+                    'loading':              'Завантаження...',
                     'theme':                'Оформлення',
                     'theme-light':          'Світле',
                     'theme-dark':           'Темне',
@@ -382,7 +464,7 @@
         new Vue({
             el: '#app',
             data: () => ({
-                isLoading: true,
+                loading: true,
                 error: false
             }),
             mounted: function () {
@@ -390,12 +472,12 @@
             },
             methods: {
                 reload: function () {
-                    this.isLoading = true;
+                    this.loading = true;
                     this.$store.dispatch('load-game-data').then(() => {
-                        this.isLoading = false;
+                        this.loading = false;
                     }).catch((error) => {
                         this.error = error.message;
-                        this.isLoading = false;
+                        this.loading = false;
                     });
                 }
             },
