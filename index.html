@@ -22,10 +22,10 @@
 
     <template id="app-page-not-found">
         <v-container v-once>
-            <div class="title my-2">Page Not Found</div>
-            <span>
-                The page you are looking for could not be found.
-            </span>
+            <v-layout row wrap>
+                <v-flex xs12 my-2 title>{{ $t('page-not-found') }}</v-flex>
+                <v-flex xs12 py-2>{{ $t('page-not-found-text') }}</v-flex>
+            </v-layout>
         </v-container>
     </template>
 
@@ -37,17 +37,21 @@
 
     <template id="app-home">
         <v-container v-once>
-            <div class="title my-2">Welcome</div>
-            <span>
-                Hello and welcome to our small community! This page should say something smart and funny about us, too bad nothing comes
-                to my mind at this very moment.
-            </span>
-            <div class="title mb-2 mt-4">Links</div>
-            <ul class="ml-3">
-                <li>Discord <a href="/">channel</a></li>
-                <li>Recruting forum <a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17618053653">thread</a></li>
-                <li>Looking for players forum <a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17615632657">thread</a></li>
-            </ul>
+            <v-layout row wrap>
+                <v-flex xs12 my-2 title>Welcome</v-flex>
+                <v-flex xs12 py-2>
+                    Hello and welcome to our small community! This page should say something smart and funny about us, too bad nothing comes
+                    to my mind at this very moment.
+                </v-flex>
+                <v-flex xs12 my-2 mt-4 title>Links</v-flex>
+                <v-flex xs12 ml-3>
+                    <ul>
+                        <li>Discord <a href="/">channel</a></li>
+                        <li>Recruting forum <a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17618053653">thread</a></li>
+                        <li>Looking for players forum <a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17615632657">thread</a></li>
+                    </ul>
+                </v-flex>
+            </v-layout>
         </v-container>
     </template>
 
@@ -60,22 +64,20 @@
     <template id="app-member-list">
         <div>
             <v-list v-if="members.length > 0" two-line>
-                <div v-for="(member, index) in members">
-                    <v-list-tile avatar :key="index" @click="">
-                        <v-list-tile-avatar tile>
-                            <img :src="member._thumbnail">
-                        </v-list-tile-avatar>
-                        <v-list-tile-content>
-                            <v-list-tile-title>{{ member.name }}</v-list-tile-title>
-                            <v-list-tile-sub-title>
-                                Level {{ member.level }} {{ member._race }} <span v-if="member.spec">{{ member.spec.name }}</span> {{ member._class }}
-                            </v-list-tile-sub-title>
-                        </v-list-tile-content>
-                    </v-list-tile>
-                </div>
+                <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="">
+                    <v-list-tile-avatar tile>
+                        <img :src="member._thumbnail">
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                        <v-list-tile-title>{{ member.name }}</v-list-tile-title>
+                        <v-list-tile-sub-title>
+                            Level {{ member.level }} {{ member._race }} <span v-if="member.spec">{{ member.spec.name }}</span> {{ member._class }}
+                        </v-list-tile-sub-title>
+                    </v-list-tile-content>
+                </v-list-tile>
             </v-list>
             <v-alert v-else type="info" :value="true">
-                No members found.
+                {{ $t('no-members-found') }}
             </v-alert>
         </div>
     </template>
@@ -90,10 +92,10 @@
     <template id="app-roster">
         <v-container>
             <v-layout row wrap>
-                <v-flex sm6 class="px-3">
+                <v-flex sm6 px-3>
                     <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange"></v-select>
                 </v-flex>
-                <v-flex sm6 class="px-3">
+                <v-flex sm6 px-3>
                     <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText"></v-text-field>
                 </v-flex>
             </v-layout>
@@ -104,7 +106,7 @@
                     <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
                 </div>
             </v-alert>
-            <app-member-list v-else-if="members" v-bind:members="displayMembers"></app-member-list>
+            <app-member-list v-else-if="members" :members="displayMembers"></app-member-list>
         </v-container>
     </template>
 
@@ -242,21 +244,35 @@
 
     <template id="app-settings">
         <v-container>
-            <div class="title my-2">{{ $t('settings') }}</div>
             <v-layout row wrap>
-                <v-flex xs12 sm6 class="py-2">
+                <v-flex xs12 my-2 title>{{ $t('settings') }}</v-flex>
+                <v-flex xs12 sm6 py-2>
                     <p>{{ $t('language') }}</p>
                     <v-btn-toggle v-model="lang">
                         <v-btn flat value="en">English</v-btn>
                         <v-btn flat value="ua">Українська</v-btn>
                     </v-btn-toggle>
                 </v-flex>
-                <v-flex xs12 sm6 class="py-2">
+                <v-flex xs12 sm6 py-2>
                     <p>{{ $t('theme') }}</p>
                     <v-btn-toggle v-model="theme">
                         <v-btn flat value="light">{{ $t('theme-light') }}</v-btn>
                         <v-btn flat value="dark">{{ $t('theme-dark') }}</v-btn>
                     </v-btn-toggle>
+                </v-flex>
+                <v-flex xs12 my-2 mt-4 title>{{ $t('libraries') }}</v-flex>
+                <v-flex xs12 sm6 lg4 py-2>
+                    <v-list two-line>
+                        <v-list-tile v-for="(lib, index) in libs" avatar :key="index">
+                            <v-list-tile-avatar tile>
+                                <v-icon>settings</v-icon>
+                            </v-list-tile-avatar>
+                            <v-list-tile-content>
+                                <v-list-tile-title>{{ lib.name }}</v-list-tile-title>
+                                <v-list-tile-sub-title>{{ $t('version') }}: {{ lib.version }}</v-list-tile-sub-title>
+                            </v-list-tile-content>
+                        </v-list-tile>
+                    </v-list>
                 </v-flex>
             </v-layout>
         </v-container>
@@ -269,7 +285,14 @@
                 lang: null,
                 langPrev: null,
                 theme: null,
-                themePrev: null
+                themePrev: null,
+                libs: [
+                    { name: 'Vue.js', version: Vue.version },
+                    { name: 'Vuex', version: Vuex.version },
+                    { name: 'Vuetify', version: Vuetify.version },
+                    { name: 'vue-router', version: VueRouter.version },
+                    { name: 'vue-i18n', version: VueI18n.version },
+                ],
             }),
             created: function () {
                 this.lang = this.$store.state.prefs.lang;
@@ -318,12 +341,12 @@
                 <v-toolbar-items class="hidden-sm-and-down">
                     <v-btn @click="$router.push('/home')" flat><v-icon left>home</v-icon>{{ $t('home') }}</v-btn>
                     <v-btn @click="$router.push('/roster')" flat><v-icon left>people</v-icon>{{ $t('roster') }}</v-btn>
-                    <v-btn @click="$router.push('/settings')" flat><v-icon left>settings</v-icon>{{ $t('settings') }}</v-btn>
+                    <v-btn @click="$router.push('/settings')" flat><v-icon left>tune</v-icon>{{ $t('settings') }}</v-btn>
                 </v-toolbar-items>
                 <v-toolbar-items class="hidden-md-and-up">
                     <v-btn @click="$router.push('/home')" flat fab><v-icon>home</v-icon></v-btn>
                     <v-btn @click="$router.push('/roster')" flat fab><v-icon>people</v-icon></v-btn>
-                    <v-btn @click="$router.push('/settings')" flat fab><v-icon>settings</v-icon></v-btn>
+                    <v-btn @click="$router.push('/settings')" flat fab><v-icon>tune</v-icon></v-btn>
                 </v-toolbar-items>
             </v-toolbar>
             <v-content>
