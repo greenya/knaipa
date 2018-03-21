@@ -64,7 +64,7 @@
     <template id="app-member-list">
         <div>
             <v-list v-if="members.length > 0" two-line>
-                <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="">
+                <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="open(member)">
                     <v-list-tile-avatar tile>
                         <img :src="member._thumbnail">
                     </v-list-tile-avatar>
@@ -85,11 +85,16 @@
     <script>
         Vue.component('app-member-list', {
             template: '#app-member-list',
-            props: [ 'members' ]
+            props: [ 'members' ],
+            methods: {
+                open: function (member) {
+                    this.$router.push({ name: 'member', params: { realm: member.realm, name: member.name } });
+                }
+            }
         });
     </script>
 
-    <template id="app-roster">
+    <template id="app-members">
         <v-container>
             <v-layout row wrap>
                 <v-flex sm6 px-3>
@@ -111,21 +116,45 @@
     </template>
 
     <script>
-        Vue.component('app-roster', {
-            template: '#app-roster',
-            data: () => ({
+        Vue.component('app-members', {
+            template: '#app-members',
+            data: function () { return {
                 loading: false,
                 error: null,
                 members: null,
-                searchText: '',
-                filterValue: [ 'all' ],
+                searchText: this.$store.state.var[ this.$options.name + ':searchText' ] || '',
+                filterValue: this.$store.state.var[ this.$options.name + ':filterValue' ] || [ 'all' ],
                 filterItems: [
                     { text: 'All members', value: 'all' },
                     { header: 'Levels' },
                     { text: 'Max level', value: 'level-max' },
                     { text: 'Low levels', value: 'level-low' },
                 ]
-            }),
+            }; },
+            computed: {
+                displayMembers: function () {
+                    return this.members.filter(this.filterMember).sort(function (a, b) {
+                        var name1 = a.name + a.realm;
+                        var name2 = b.name + b.realm;
+                        return name1.localeCompare(name2);
+                    });
+                },
+                filterHint: function () {
+                    if (this.members) {
+                        return this.$t('total-members-shown', { shown: this.displayMembers.length, total: this.members.length });
+                    } else {
+                        return this.$t('loading');
+                    }
+                }
+            },
+            watch: {
+                searchText: function (value) {
+                    this.$store.commit('set-var', { name: this.$options.name + ':searchText', value });
+                },
+                filterValue: function (value) {
+                    this.$store.commit('set-var', { name: this.$options.name + ':filterValue', value });
+                }
+            },
             created: function () {
                 var classes = [];
                 Object.keys(this.$store.state.game.classes).forEach((i) => {
@@ -149,22 +178,6 @@
                     this.members = this.$store.state.guild.members;
                 } else {
                     this.reload();
-                }
-            },
-            computed: {
-                displayMembers: function () {
-                    return this.members.filter(this.filterMember).sort(function (a, b) {
-                        var name1 = a.name + a.realm;
-                        var name2 = b.name + b.realm;
-                        return name1.localeCompare(name2);
-                    });
-                },
-                filterHint: function () {
-                    if (this.members) {
-                        return this.$t('total-members-shown', { shown: this.displayMembers.length, total: this.members.length });
-                    } else {
-                        return this.$t('loading');
-                    }
                 }
             },
             methods: {
@@ -242,6 +255,18 @@
         });
     </script>
 
+    <template id="app-member">
+        <v-container>
+            User {{ $route.params.realm }} / {{ $route.params.name }}
+        </v-container>
+    </template>
+
+    <script>
+        Vue.component('app-member', {
+            template: '#app-member'
+        });
+    </script>
+
     <template id="app-settings">
         <v-container>
             <v-layout row wrap>
@@ -281,10 +306,10 @@
     <script>
         Vue.component('app-settings', {
             template: '#app-settings',
-            data: () => ({
-                lang: null,
+            data: function () { return {
+                lang: this.$store.state.pref.lang,
                 langPrev: null,
-                theme: null,
+                theme: this.$store.state.pref.theme,
                 themePrev: null,
                 libs: [
                     { name: 'Vue.js', version: Vue.version },
@@ -293,11 +318,7 @@
                     { name: 'vue-router', version: VueRouter.version },
                     { name: 'vue-i18n', version: VueI18n.version },
                 ],
-            }),
-            created: function () {
-                this.lang = this.$store.state.prefs.lang;
-                this.theme = this.$store.state.prefs.theme;
-            },
+            }; },
             watch: {
                 lang: function (value) {
                     if (!value) {
@@ -305,7 +326,7 @@
                         return;
                     }
                     this.langPrev = value;
-                    this.$store.commit('set-prefs-lang', value);
+                    this.$store.commit('set-pref-lang', value);
                     this.$i18n.locale = value;
                 },
                 theme: function (value) {
@@ -314,7 +335,7 @@
                         return;
                     }
                     this.themePrev = value;
-                    this.$store.commit('set-prefs-theme', value);
+                    this.$store.commit('set-pref-theme', value);
                 }
             }
         });
@@ -333,7 +354,7 @@
         <v-app v-else-if="loading">
             <v-progress-circular indeterminate color="primary"></v-progress-circular>
         </v-app>
-        <v-app v-else :light="$store.state.prefs.theme === 'light'" :dark="$store.state.prefs.theme === 'dark'">
+        <v-app v-else :light="$store.state.pref.theme === 'light'" :dark="$store.state.pref.theme === 'dark'">
             <v-toolbar app>
                 <v-toolbar-side-icon></v-toolbar-side-icon>
                 <v-toolbar-title>{{ $t('guild-title') }}</v-toolbar-title>
@@ -341,7 +362,7 @@
                 <v-toolbar-items class="hidden-sm-and-down">
                     <v-btn v-for="(item, index) in nav" :key="index" :to="item.to" flat>
                         <v-icon left>{{ item.icon }}</v-icon>
-                        {{ item.name }}
+                        {{ $t(item.name) }}
                     </v-btn>
                 </v-toolbar-items>
                 <v-toolbar-items class="hidden-md-and-up">
@@ -362,20 +383,17 @@
     <script>
         new Vue({
             el: '#app',
-            data: () => ({
+            data: function () { return {
                 loading: true,
                 error: false,
-                nav: null
-            }),
+                nav: [
+                    { to: { name: 'home' }, icon: 'home', name: 'home' },
+                    { to: { name: 'members' }, icon: 'people', name: 'members' },
+                    { to: { name: 'settings' }, icon: 'tune', name: 'settings' }
+                ]
+            }; },
             created: function () {
-                this.$i18n.locale = this.$store.state.prefs.lang;
-
-                this.nav = [
-                    { to: '/home', icon: 'home', name: this.$t('home') },
-                    { to: '/roster', icon: 'people', name: this.$t('roster') },
-                    { to: '/settings', icon: 'tune', name: this.$t('settings') }
-                ];
-
+                this.$i18n.locale = this.$store.state.pref.lang;
                 this.reload();
             },
             methods: {

@@ -14,26 +14,30 @@ function appStore() {
             guild: {
                 members: null
             },
-            prefs: {
+            pref: {
                 lang: localStorage.lang === 'ua' ? 'ua' : 'en',
                 theme: localStorage.theme === 'dark' ? 'dark' : 'light'
-            }
+            },
+            var: {}
         },
         mutations: {
-            'set-game-races': function (state, races) {
-                state.game.races = races;
+            'set-game-races': function (state, payload) {
+                state.game.races = payload;
             },
-            'set-game-classes': function (state, classes) {
-                state.game.classes = classes;
+            'set-game-classes': function (state, payload) {
+                state.game.classes = payload;
             },
-            'set-guild-members': function (state, members) {
-                state.guild.members = members;
+            'set-guild-members': function (state, payload) {
+                state.guild.members = payload;
             },
-            'set-prefs-lang': function (state, lang) {
-                localStorage.lang = state.prefs.lang = lang;
+            'set-pref-lang': function (state, payload) {
+                localStorage.lang = state.pref.lang = payload;
             },
-            'set-prefs-theme': function (state, theme) {
-                localStorage.theme = state.prefs.theme = theme;
+            'set-pref-theme': function (state, payload) {
+                localStorage.theme = state.pref.theme = payload;
+            },
+            'set-var': function (state, payload) {
+                state.var[ payload.name ] = payload.value;
             }
         },
         actions: {
