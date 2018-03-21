@@ -339,14 +339,14 @@
                 <v-toolbar-title>{{ $t('guild-title') }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items class="hidden-sm-and-down">
-                    <v-btn @click="$router.push('/home')" flat><v-icon left>home</v-icon>{{ $t('home') }}</v-btn>
-                    <v-btn @click="$router.push('/roster')" flat><v-icon left>people</v-icon>{{ $t('roster') }}</v-btn>
-                    <v-btn @click="$router.push('/settings')" flat><v-icon left>tune</v-icon>{{ $t('settings') }}</v-btn>
+                    <v-btn to="/home" flat><v-icon left>home</v-icon>{{ $t('home') }}</v-btn>
+                    <v-btn to="/roster" flat><v-icon left>people</v-icon>{{ $t('roster') }}</v-btn>
+                    <v-btn to="/settings" flat><v-icon left>tune</v-icon>{{ $t('settings') }}</v-btn>
                 </v-toolbar-items>
                 <v-toolbar-items class="hidden-md-and-up">
-                    <v-btn @click="$router.push('/home')" flat fab><v-icon>home</v-icon></v-btn>
-                    <v-btn @click="$router.push('/roster')" flat fab><v-icon>people</v-icon></v-btn>
-                    <v-btn @click="$router.push('/settings')" flat fab><v-icon>tune</v-icon></v-btn>
+                    <v-btn to="/home" flat fab><v-icon>home</v-icon></v-btn>
+                    <v-btn to="/roster" flat fab><v-icon>people</v-icon></v-btn>
+                    <v-btn to="/settings" flat fab><v-icon>tune</v-icon></v-btn>
                 </v-toolbar-items>
             </v-toolbar>
             <v-content>
