@@ -288,8 +288,8 @@
                 themePrev: null,
                 libs: [
                     { name: 'Vue.js', version: Vue.version },
-                    { name: 'Vuex', version: Vuex.version },
                     { name: 'Vuetify', version: Vuetify.version },
+                    { name: 'Vuex', version: Vuex.version },
                     { name: 'vue-router', version: VueRouter.version },
                     { name: 'vue-i18n', version: VueI18n.version },
                 ],
@@ -339,14 +339,15 @@
                 <v-toolbar-title>{{ $t('guild-title') }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-toolbar-items class="hidden-sm-and-down">
-                    <v-btn to="/home" flat><v-icon left>home</v-icon>{{ $t('home') }}</v-btn>
-                    <v-btn to="/roster" flat><v-icon left>people</v-icon>{{ $t('roster') }}</v-btn>
-                    <v-btn to="/settings" flat><v-icon left>tune</v-icon>{{ $t('settings') }}</v-btn>
+                    <v-btn v-for="(item, index) in nav" :key="index" :to="item.to" flat>
+                        <v-icon left>{{ item.icon }}</v-icon>
+                        {{ item.name }}
+                    </v-btn>
                 </v-toolbar-items>
                 <v-toolbar-items class="hidden-md-and-up">
-                    <v-btn to="/home" flat fab><v-icon>home</v-icon></v-btn>
-                    <v-btn to="/roster" flat fab><v-icon>people</v-icon></v-btn>
-                    <v-btn to="/settings" flat fab><v-icon>tune</v-icon></v-btn>
+                    <v-btn v-for="(item, index) in nav" :key="index" :to="item.to" flat fab>
+                        <v-icon>{{ item.icon }}</v-icon>
+                    </v-btn>
                 </v-toolbar-items>
             </v-toolbar>
             <v-content>
@@ -363,10 +364,18 @@
             el: '#app',
             data: () => ({
                 loading: true,
-                error: false
+                error: false,
+                nav: null
             }),
             created: function () {
                 this.$i18n.locale = this.$store.state.prefs.lang;
+
+                this.nav = [
+                    { to: '/home', icon: 'home', name: this.$t('home') },
+                    { to: '/roster', icon: 'people', name: this.$t('roster') },
+                    { to: '/settings', icon: 'tune', name: this.$t('settings') }
+                ];
+
                 this.reload();
             },
             methods: {
