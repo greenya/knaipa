@@ -15,6 +15,7 @@
     <script src="app-store.js"></script>
     <script src="app-router.js"></script>
     <script src="app-i18n.js"></script>
+    <script src="app-mixin.js"></script>
     <style>[v-cloak] { display: none; };</style>
 </head>
 
@@ -122,8 +123,8 @@
                 loading: false,
                 error: null,
                 members: null,
-                searchText: this.$store.state.var[ this.$options.name + ':searchText' ] || '',
-                filterValue: this.$store.state.var[ this.$options.name + ':filterValue' ] || [ 'all' ],
+                searchText: '',
+                filterValue: [ 'all' ],
                 filterItems: [
                     { text: 'All members', value: 'all' },
                     { header: 'Levels' },
@@ -131,6 +132,7 @@
                     { text: 'Low levels', value: 'level-low' },
                 ]
             }; },
+            vars: [ 'searchText', 'filterValue' ],
             computed: {
                 displayMembers: function () {
                     return this.members.filter(this.filterMember).sort(function (a, b) {
@@ -145,14 +147,6 @@
                     } else {
                         return this.$t('loading');
                     }
-                }
-            },
-            watch: {
-                searchText: function (value) {
-                    this.$store.commit('set-var', { name: this.$options.name + ':searchText', value });
-                },
-                filterValue: function (value) {
-                    this.$store.commit('set-var', { name: this.$options.name + ':filterValue', value });
                 }
             },
             created: function () {
@@ -257,7 +251,7 @@
 
     <template id="app-member">
         <v-container>
-            User {{ $route.params.realm }} / {{ $route.params.name }}
+            MEMBER: {{ $route.params.realm }} / {{ $route.params.name }}
         </v-container>
     </template>
 

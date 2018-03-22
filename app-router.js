@@ -2,10 +2,6 @@ function appRouter() {
     return new VueRouter({
         routes: [
             {
-                path: '*',
-                component: Vue.component('app-page-not-found')
-            },
-            {
                 path: '/',
                 redirect: { name: 'home' }
             },
@@ -26,8 +22,12 @@ function appRouter() {
             },
             {
                 name: 'member',
-                path: '/:realm/:name',
+                path: '/members/:realm/:name',
                 component: Vue.component('app-member')
+            },
+            {
+                path: '*',
+                component: Vue.component('app-page-not-found')
             }
         ]
     });
