@@ -15,23 +15,9 @@ bnapi.parseError = function (status, body) {
 
 bnapi.wow = {};
 
-bnapi.wow.guild = {};
-
-bnapi.wow.guild.getMembers = function (apikey, locale, realm, guild) {
-    return new Promise((resolve, reject) => {
-        ajax.get('https://eu.api.battle.net/wow/guild/' + realm + '/' + guild, { apikey, locale, fields: 'members' }, function (status, body) {
-            if (status.code === 200) {
-                resolve(JSON.parse(body).members);
-            } else {
-                reject(bnapi.parseError(status, body));
-            }
-        });
-    });
-};
-
 bnapi.wow.data = {};
 
-bnapi.wow.data.getCharacterRaces = function (apikey, locale) {
+bnapi.wow.data.characterRaces = function (apikey, locale) {
     return new Promise((resolve, reject) => {
         ajax.get('https://eu.api.battle.net/wow/data/character/races', { apikey, locale }, function (status, body) {
             if (status.code === 200) {
@@ -43,11 +29,39 @@ bnapi.wow.data.getCharacterRaces = function (apikey, locale) {
     });
 };
 
-bnapi.wow.data.getCharacterClasses = function (apikey, locale) {
+bnapi.wow.data.characterClasses = function (apikey, locale) {
     return new Promise((resolve, reject) => {
         ajax.get('https://eu.api.battle.net/wow/data/character/classes', { apikey, locale }, function (status, body) {
             if (status.code === 200) {
                 resolve(JSON.parse(body).classes);
+            } else {
+                reject(bnapi.parseError(status, body));
+            }
+        });
+    });
+};
+
+bnapi.wow.character = {};
+
+bnapi.wow.character.items = function (apikey, locale, realm, characterName) {
+    return new Promise((resolve, reject) => {
+        ajax.get('https://eu.api.battle.net/wow/character/' + realm + '/' + characterName, { apikey, locale, fields: 'items' }, function (status, body) {
+            if (status.code === 200) {
+                resolve(JSON.parse(body).items);
+            } else {
+                reject(bnapi.parseError(status, body));
+            }
+        });
+    });
+};
+
+bnapi.wow.guild = {};
+
+bnapi.wow.guild.members = function (apikey, locale, realm, guild) {
+    return new Promise((resolve, reject) => {
+        ajax.get('https://eu.api.battle.net/wow/guild/' + realm + '/' + guild, { apikey, locale, fields: 'members' }, function (status, body) {
+            if (status.code === 200) {
+                resolve(JSON.parse(body).members);
             } else {
                 reject(bnapi.parseError(status, body));
             }

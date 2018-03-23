@@ -5,13 +5,13 @@ Vue.mixin({
         }
 
         this.$options.vars.forEach((variable) => {
-            var value = this.$store.state.var[ this.$options.name + ':' + variable ];
+            var value = this.$store.state.app.vars[ this.$options.name + ':' + variable ];
             if (value !== undefined) {
                 this[ variable ] = value;
             }
 
             this.$watch(variable, function (value) {
-                this.$store.commit('set-var', { name: this.$options.name + ':' + variable, value });
+                this.$store.commit('set-app-var', { name: this.$options.name + ':' + variable, value });
             });
         });
     }

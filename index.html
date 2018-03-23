@@ -62,6 +62,53 @@
         });
     </script>
 
+    <template id="app-member">
+        <v-container>
+            <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
+            <v-layout row wrap>
+                <!--v-flex sm6 px-3>
+                    <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange"></v-select>
+                </v-flex>
+                <v-flex sm6 px-3>
+                    <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText"></v-text-field>
+                </v-flex-->
+            </v-layout>
+            <!--v-alert v-if="error" type="error" :value="true">
+                <div class="title mb-4">Failed to load character data</div>
+                <code class="pa-3">{{ error }}</code>
+                <div class="text-xs-right mt-1">
+                    <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
+                </div>
+            </v-alert-->
+            <span>
+                <code>{{ name }} @ {{ realm }}</code>
+            </span>
+        </v-container>
+    </template>
+
+    <script>
+        Vue.component('app-member', {
+            template: '#app-member',
+            data: function () { return {
+                loading: false,
+                realm: this.$route.params.realm,
+                name: this.$route.params.name,
+            }; },
+            created: function () {
+                /*if (this.$store.state.guild.members) {
+                    this.members = this.$store.state.guild.members;
+                } else {
+                    this.reload();
+                }*/
+                this.loading = true;
+                this.$store.dispatch('load-character-items', { realm: this.realm, name: this.name }).then((data) => {
+                    console.log('loaded', data);
+                    this.loading = false;
+                });
+            }
+        });
+    </script>
+
     <template id="app-member-list">
         <div>
             <v-list v-if="members.length > 0" two-line>
@@ -77,9 +124,9 @@
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>
-            <v-alert v-else type="info" :value="true">
-                {{ $t('no-members-found') }}
-            </v-alert>
+            <div v-else class="text-xs-center my-4 grey--text">
+                {{ $t('list-is-empty') }}
+            </div>
         </div>
     </template>
 
@@ -98,10 +145,10 @@
     <template id="app-members">
         <v-container>
             <v-layout row wrap>
-                <v-flex sm6 px-3>
+                <v-flex sm6>
                     <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange"></v-select>
                 </v-flex>
-                <v-flex sm6 px-3>
+                <v-flex sm6>
                     <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText"></v-text-field>
                 </v-flex>
             </v-layout>
@@ -249,15 +296,68 @@
         });
     </script>
 
-    <template id="app-member">
-        <v-container>
-            MEMBER: {{ $route.params.realm }} / {{ $route.params.name }}
-        </v-container>
+    <template id="app-system-libraries">
+        <v-list two-line>
+            <v-list-tile v-for="(lib, index) in libs" avatar :key="index">
+                <v-list-tile-avatar tile>
+                    <v-icon>settings</v-icon>
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                    <v-list-tile-title>{{ lib.name }}</v-list-tile-title>
+                    <v-list-tile-sub-title>{{ $t('version') }}: {{ lib.version }}</v-list-tile-sub-title>
+                </v-list-tile-content>
+            </v-list-tile>
+        </v-list>
     </template>
 
     <script>
-        Vue.component('app-member', {
-            template: '#app-member'
+        Vue.component('app-system-libraries', {
+            template: '#app-system-libraries',
+            data: function () { return {
+                libs: [
+                    { name: 'Vue.js', version: Vue.version },
+                    { name: 'Vuetify', version: Vuetify.version },
+                    { name: 'Vuex', version: Vuex.version },
+                    { name: 'vue-router', version: VueRouter.version },
+                    { name: 'vue-i18n', version: VueI18n.version }
+                ]
+            }; }
+        });
+    </script>
+
+    <template id="app-system-messages">
+        <div>
+            <v-list v-if="messages.length > 0" two-line>
+                <v-list-tile v-for="(message, index) in messages" avatar :key="index">
+                    <v-list-tile-avatar tile>
+                        <v-icon :color="message.type">{{ message.type }}</v-icon>
+                    </v-list-tile-avatar>
+                    <v-list-tile-content>
+                        <v-list-tile-title v-if="message.text">{{ typeof message.text === 'object' ? $t(message.text.key, message.text.args) : message.text }}</v-list-tile-title>
+                        <v-list-tile-sub-title>
+                            <span>{{ new Date(message.timestamp).toLocaleTimeString() }}</span>
+                            <span v-if="message.desc">&mdash; {{ typeof message.desc === 'object' ? $t(message.desc.key, message.desc.args) : message.desc }}</span>
+                        </v-list-tile-sub-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+            </v-list>
+            <div v-else class="my-1 grey--text">
+                {{ $t('list-is-empty') }}
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-system-messages', {
+            template: '#app-system-messages',
+            data: function () { return {
+                messages: this.$store.state.app.messages.sort((a, b) => b.timestamp - a.timestamp)
+            }; },
+            mounted: function () {
+                window.setTimeout(function () {
+                    this.$store.commit('mark-all-app-messages-seen');
+                }.bind(this), 1000);
+            }
         });
     </script>
 
@@ -279,19 +379,18 @@
                         <v-btn flat value="dark">{{ $t('theme-dark') }}</v-btn>
                     </v-btn-toggle>
                 </v-flex>
-                <v-flex xs12 my-2 mt-4 title>{{ $t('libraries') }}</v-flex>
-                <v-flex xs12 sm6 lg4 py-2>
-                    <v-list two-line>
-                        <v-list-tile v-for="(lib, index) in libs" avatar :key="index">
-                            <v-list-tile-avatar tile>
-                                <v-icon>settings</v-icon>
-                            </v-list-tile-avatar>
-                            <v-list-tile-content>
-                                <v-list-tile-title>{{ lib.name }}</v-list-tile-title>
-                                <v-list-tile-sub-title>{{ $t('version') }}: {{ lib.version }}</v-list-tile-sub-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
+                <v-flex xs12 md6 mt-4>
+                    <div class="my-2 title">
+                        <v-badge :color="$store.getters[ 'unseen-app-messages-count' ] > 0 ? 'error' : 'grey lighten-1'">
+                            <span slot="badge">{{ $store.getters[ 'unseen-app-messages-count' ] }}</span>
+                            <span class="pr-1">{{ $t('messages') }}</span>
+                        </v-badge>
+                    </div>
+                    <app-system-messages />
+                </v-flex>
+                <v-flex xs12 md6 mt-4>
+                    <div class="my-2 title">{{ $t('libraries') }}</div>
+                    <app-system-libraries />
                 </v-flex>
             </v-layout>
         </v-container>
@@ -302,34 +401,23 @@
             template: '#app-settings',
             data: function () { return {
                 lang: this.$store.state.pref.lang,
-                langPrev: null,
-                theme: this.$store.state.pref.theme,
-                themePrev: null,
-                libs: [
-                    { name: 'Vue.js', version: Vue.version },
-                    { name: 'Vuetify', version: Vuetify.version },
-                    { name: 'Vuex', version: Vuex.version },
-                    { name: 'vue-router', version: VueRouter.version },
-                    { name: 'vue-i18n', version: VueI18n.version },
-                ],
+                theme: this.$store.state.pref.theme
             }; },
             watch: {
                 lang: function (value) {
-                    if (!value) {
-                        this.lang = this.langPrev;
-                        return;
+                    if (value) {
+                        this.$store.commit('set-pref-lang', value);
+                        this.$i18n.locale = value;
+                    } else {
+                        this.lang = this.$store.state.pref.lang;
                     }
-                    this.langPrev = value;
-                    this.$store.commit('set-pref-lang', value);
-                    this.$i18n.locale = value;
                 },
                 theme: function (value) {
-                    if (!value) {
-                        this.theme = this.themePrev;
-                        return;
+                    if (value) {
+                        this.$store.commit('set-pref-theme', value);
+                    } else {
+                        this.theme = this.$store.state.pref.theme;
                     }
-                    this.themePrev = value;
-                    this.$store.commit('set-pref-theme', value);
                 }
             }
         });
@@ -353,15 +441,17 @@
                 <v-toolbar-side-icon></v-toolbar-side-icon>
                 <v-toolbar-title>{{ $t('guild-title') }}</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-toolbar-items class="hidden-sm-and-down">
+                <v-toolbar-items>
                     <v-btn v-for="(item, index) in nav" :key="index" :to="item.to" flat>
-                        <v-icon left>{{ item.icon }}</v-icon>
-                        {{ $t(item.name) }}
-                    </v-btn>
-                </v-toolbar-items>
-                <v-toolbar-items class="hidden-md-and-up">
-                    <v-btn v-for="(item, index) in nav" :key="index" :to="item.to" flat fab>
-                        <v-icon>{{ item.icon }}</v-icon>
+                        <v-badge v-if="item.name === 'settings'" v-model="$store.getters[ 'unseen-app-messages-count' ] > 0" :left="$vuetify.breakpoint.smAndUp" overlap color="error">
+                            <span slot="badge">{{ $store.getters[ 'unseen-app-messages-count' ] }}</span>
+                            <v-icon :left="$vuetify.breakpoint.smAndUp">{{ item.icon }}</v-icon>
+                            <span class="hidden-xs-only">{{ $t(item.name) }}</span>
+                        </v-badge>
+                        <div v-else>
+                            <v-icon :left="$vuetify.breakpoint.smAndUp">{{ item.icon }}</v-icon>
+                            <span class="hidden-xs-only">{{ $t(item.name) }}</span>
+                        </div>
                     </v-btn>
                 </v-toolbar-items>
             </v-toolbar>
