@@ -22,10 +22,10 @@
 <body>
 
     <template id="app-page-not-found">
-        <v-container v-once>
+        <v-container grid-list-xl v-once>
             <v-layout row wrap>
-                <v-flex xs12 my-2 title>{{ $t('page-not-found') }}</v-flex>
-                <v-flex xs12 py-2>{{ $t('page-not-found-text') }}</v-flex>
+                <v-flex xs12 title>{{ $t('page-not-found') }}</v-flex>
+                <v-flex xs12>{{ $t('page-not-found-text') }}</v-flex>
             </v-layout>
         </v-container>
     </template>
@@ -37,14 +37,14 @@
     </script>
 
     <template id="app-home">
-        <v-container v-once>
+        <v-container grid-list-xl v-once>
             <v-layout row wrap>
-                <v-flex xs12 my-2 title>Welcome</v-flex>
-                <v-flex xs12 py-2>
+                <v-flex xs12 title>Welcome</v-flex>
+                <v-flex xs12>
                     Hello and welcome to our small community! This page should say something smart and funny about us, too bad nothing comes
                     to my mind at this very moment.
                 </v-flex>
-                <v-flex xs12 my-2 mt-4 title>Links</v-flex>
+                <v-flex xs12 title>Links</v-flex>
                 <v-flex xs12 ml-3>
                     <ul>
                         <li>Discord <a href="/">channel</a></li>
@@ -63,7 +63,7 @@
     </script>
 
     <template id="app-member">
-        <v-container>
+        <v-container grid-list-xl>
             <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
             <v-layout row wrap>
                 <!--v-flex sm6 px-3>
@@ -143,23 +143,27 @@
     </script>
 
     <template id="app-members">
-        <v-container>
+        <v-container grid-list-xl>
             <v-layout row wrap>
-                <v-flex sm6>
-                    <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange"></v-select>
+                <v-flex xs12 sm6>
+                    <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange" class="pt-0"></v-select>
                 </v-flex>
-                <v-flex sm6>
-                    <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText"></v-text-field>
+                <v-flex xs12 sm6>
+                    <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText" class="pt-0"></v-text-field>
+                </v-flex>
+                <v-flex v-if="error" xs12>
+                    <v-alert type="error" :value="true">
+                        <div class="title mb-4">Failed to load list of guild members</div>
+                        <code class="pa-3">{{ error }}</code>
+                        <div class="text-xs-right mt-1">
+                            <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
+                        </div>
+                    </v-alert>
+                </v-flex>
+                <v-flex v-else-if="members" xs12>
+                    <app-member-list :members="displayMembers"></app-member-list>
                 </v-flex>
             </v-layout>
-            <v-alert v-if="error" type="error" :value="true">
-                <div class="title mb-4">Failed to load list of guild members</div>
-                <code class="pa-3">{{ error }}</code>
-                <div class="text-xs-right mt-1">
-                    <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
-                </div>
-            </v-alert>
-            <app-member-list v-else-if="members" :members="displayMembers"></app-member-list>
         </v-container>
     </template>
 
@@ -327,23 +331,58 @@
 
     <template id="app-system-messages">
         <div>
-            <v-list v-if="messages.length > 0" two-line>
-                <v-list-tile v-for="(message, index) in messages" avatar :key="index">
-                    <v-list-tile-avatar tile>
-                        <v-icon :color="message.type">{{ message.type }}</v-icon>
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                        <v-list-tile-title v-if="message.text">{{ typeof message.text === 'object' ? $t(message.text.key, message.text.args) : message.text }}</v-list-tile-title>
-                        <v-list-tile-sub-title>
-                            <span>{{ new Date(message.timestamp).toLocaleTimeString() }}</span>
-                            <span v-if="message.desc">&mdash; {{ typeof message.desc === 'object' ? $t(message.desc.key, message.desc.args) : message.desc }}</span>
-                        </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                </v-list-tile>
-            </v-list>
+            <div v-if="displayMessages.length > 0">
+                <v-list two-line>
+                    <v-list-tile v-for="(message, index) in displayMessages" avatar :key="index" @click="dialog.opened = true; dialog.message = message">
+                        <v-list-tile-avatar tile>
+                            <v-icon :color="message.type">{{ message.type }}</v-icon>
+                        </v-list-tile-avatar>
+                        <v-list-tile-content>
+                            <v-list-tile-title v-if="message.text">{{ $text(message.text) }}</v-list-tile-title>
+                            <v-list-tile-sub-title>
+                                <span>{{ new Date(message.time).toLocaleTimeString() }}</span>
+                                <span v-if="message.desc">&mdash; {{ $text(message.desc) }}</span>
+                            </v-list-tile-sub-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </v-list>
+                <div v-if="totalPages > 1" class="text-xs-center mt-2">
+                    <v-pagination :length="totalPages" v-model="page.number"></v-pagination>
+                </div>
+            </div>
             <div v-else class="my-1 grey--text">
                 {{ $t('list-is-empty') }}
             </div>
+            <v-dialog v-if="dialog.message" v-model="dialog.opened" max-width="720px">
+                <v-card>
+                    <v-card-title class="pa-0">
+                        <v-alert :type="dialog.message.type" :value="true" class="ma-0" style="width: 100%;">
+                            {{ $text(dialog.message.text) }}
+                        </v-alert>
+                    </v-card-title>
+                    <div v-if="dialog.message.desc">
+                        <v-divider></v-divider>
+                        <v-card-text>
+                            {{ $text(dialog.message.desc) }}
+                        </v-card-text>
+                    </div>
+                    <div v-if="dialog.message.details">
+                        <v-divider></v-divider>
+                        <v-card-text>
+                            <pre style="overflow: auto;">{{ $text(dialog.message.details) }}</pre>
+                        </v-card-text>
+                    </div>
+                    <v-divider></v-divider>
+                    <v-card-actions>
+                        <span class="ml-3 grey--text">
+                            <v-icon small class="mr-1">access_time</v-icon>
+                            {{ new Date(dialog.message.time).toLocaleString() }}
+                        </span>
+                        <v-spacer></v-spacer>
+                        <v-btn flat color="primary" @click="dialog.opened = false">{{ $t('close') }}</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </div>
     </template>
 
@@ -351,35 +390,45 @@
         Vue.component('app-system-messages', {
             template: '#app-system-messages',
             data: function () { return {
-                messages: this.$store.state.app.messages.sort((a, b) => b.timestamp - a.timestamp)
+                messages: this.$store.state.app.messages.sort((a, b) => b.time - a.time),
+                page: { number: 1, size: 5 },
+                dialog: { opened: false, message: null }
             }; },
+            computed: {
+                totalPages: function () {
+                    return Math.ceil(this.messages.length / this.page.size);
+                },
+                displayMessages: function () {
+                    var n = this.page.number;
+                    var s = this.page.size;
+                    return this.messages.slice((n - 1) * s, n * s);
+                }
+            },
             mounted: function () {
-                window.setTimeout(function () {
-                    this.$store.commit('mark-all-app-messages-seen');
-                }.bind(this), 1000);
+                window.setTimeout(() => this.$store.commit('mark-all-app-messages-seen'), 1000);
             }
         });
     </script>
 
     <template id="app-settings">
-        <v-container>
+        <v-container grid-list-xl>
             <v-layout row wrap>
-                <v-flex xs12 my-2 title>{{ $t('settings') }}</v-flex>
-                <v-flex xs12 sm6 py-2>
+                <v-flex xs12 title>{{ $t('settings') }}</v-flex>
+                <v-flex xs12 sm6>
                     <p>{{ $t('language') }}</p>
                     <v-btn-toggle v-model="lang">
                         <v-btn flat value="en">English</v-btn>
                         <v-btn flat value="ua">Українська</v-btn>
                     </v-btn-toggle>
                 </v-flex>
-                <v-flex xs12 sm6 py-2>
+                <v-flex xs12 sm6>
                     <p>{{ $t('theme') }}</p>
                     <v-btn-toggle v-model="theme">
                         <v-btn flat value="light">{{ $t('theme-light') }}</v-btn>
                         <v-btn flat value="dark">{{ $t('theme-dark') }}</v-btn>
                     </v-btn-toggle>
                 </v-flex>
-                <v-flex xs12 md6 mt-4>
+                <v-flex xs12 md6 mt-3>
                     <div class="my-2 title">
                         <v-badge :color="$store.getters[ 'unseen-app-messages-count' ] > 0 ? 'error' : 'grey lighten-1'">
                             <span slot="badge">{{ $store.getters[ 'unseen-app-messages-count' ] }}</span>
@@ -388,7 +437,7 @@
                     </div>
                     <app-system-messages />
                 </v-flex>
-                <v-flex xs12 md6 mt-4>
+                <v-flex xs12 md6 mt-3>
                     <div class="my-2 title">{{ $t('libraries') }}</div>
                     <app-system-libraries />
                 </v-flex>

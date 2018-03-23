@@ -39,10 +39,10 @@ function appStore() {
         },
         mutations: {
             'set-app-var': function (state, payload) {
-                state.app.vars[ payload.name ] = payload.value;
+                state.app.vars[ payload.key ] = payload.value;
             },
             'add-app-message': function (state, payload) {
-                state.app.messages.push({ ...payload, timestamp: Date.now(), unseen: true });
+                state.app.messages.push({ ...payload, time: Date.now(), unseen: true });
             },
             'mark-all-app-messages-seen': function (state) {
                 state.app.messages.forEach(i => i.unseen = false);
@@ -85,7 +85,7 @@ function appStore() {
                         classesResult[ classes[ i ].id ] = classes[ i ].name;
                     }
                     commit('set-game-classes', classesResult);
-                    commit('add-app-message', { type: 'info', text: 'Game data successfuly loaded', desc: 'It is!' }); // debug
+                    commit('add-app-message', { type: 'info', text: 'Game data successfuly loaded' }); // debug
                 });
             },
             'load-guild-members': function ({ state, commit }) {
@@ -108,7 +108,6 @@ function appStore() {
                         });
                     }
                     commit('set-guild-members', result);
-                    commit('add-app-message', { type: 'warning', text: { key: 'list-is-empty' } }); // debug
                     return result;
                 });
             },
@@ -123,7 +122,7 @@ function appStore() {
                         commit('set-character-items', { name: key, value: items })
                         resolve(items);
                     }).catch((error) => {
-                        commit('add-app-message', { type: 'error', text: error.toString(), desc: { key: 'load-character-items-failed', args: { realm, name } } });
+                        commit('add-app-message', { type: 'error', text: { key: 'load-character-items-failed', args: { realm, name } }, desc: error.toString(), details: error.stack });
                         reject(error);
                     });
                 });

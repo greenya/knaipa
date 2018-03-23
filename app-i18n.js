@@ -2,6 +2,7 @@ function appI18n() {
     return new VueI18n({
         messages: {
             en: {
+                'close':                        'Close',
                 'guild-title':                  'Knaipa Variativ',
                 'guild-location':               'Ukrainian guild on EU Terokkar',
                 'home':                         'Home',
@@ -22,6 +23,7 @@ function appI18n() {
                 'load-character-items-failed':  'Failed to load items for {name} from {realm}.',
             },
             ua: {
+                'close':                        'Закрити',
                 'guild-title':                  'Кнайпа Варʼятів',
                 'guild-location':               'Українська гільдія на сервері EU Terokkar',
                 'home':                         'Головна',
