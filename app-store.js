@@ -85,30 +85,43 @@ function appStore() {
                         classesResult[ classes[ i ].id ] = classes[ i ].name;
                     }
                     commit('set-game-classes', classesResult);
-                    commit('add-app-message', { type: 'info', text: 'Game data successfuly loaded' }); // debug
                 });
             },
             'load-guild-members': function ({ state, commit }) {
-                return bnapi.wow.guild.members(state.bnet.apikey, state.bnet.locale, state.bnet.realm, state.bnet.guild).then((members) => {
-                    var result = [];
-                    for (var i = 0; i < members.length; ++i) {
-                        var c = members[ i ].character;
-                        result.push({
-                            ...c,
-                            _race: state.game.races[ c.race ],
-                            _class: state.game.classes[ c.class ],
-                            _grank: members[ i ].rank,
-                            _levelmaxed: c.level === 110,
-                            _thumbnail: 'https://render-eu.worldofwarcraft.com/character/' + c.thumbnail
-                                + '?alt=/wow/static/images/2d/avatar/' + c.race + '-' + c.gender + '.jpg',
-                            //_specicon: c.spec ? 'https://render-eu.worldofwarcraft.com/icons/18/' + c.spec.icon + '.jpg' : null,
-                            //_armory: 'https://worldofwarcraft.com/' + state.bnet.locale + '/character/' + c.realm + '/' + c.name,
-                            //_wowprogress: 'https://www.wowprogress.com/character/eu/' + c.realm +  '/' + c.name,
-                            //_raiderio: 'https://raider.io/characters/eu/' + c.realm +  '/' + c.name,
+                if (state.guild.members) {
+                    return state.guild.members;
+                }
+
+                return new Promise((resolve, reject) => {
+                    bnapi.wow.guild.members(state.bnet.apikey, state.bnet.locale, state.bnet.realm, state.bnet.guild).then((members) => {
+                        var result = [];
+                        for (var i = 0; i < members.length; ++i) {
+                            var c = members[ i ].character;
+                            result.push({
+                                ...c,
+                                _race: state.game.races[ c.race ],
+                                _class: state.game.classes[ c.class ],
+                                _grank: members[ i ].rank,
+                                _levelmaxed: c.level === 110,
+                                _thumbnail: 'https://render-eu.worldofwarcraft.com/character/' + c.thumbnail
+                                    + '?alt=/wow/static/images/2d/avatar/' + c.race + '-' + c.gender + '.jpg',
+                                //_specicon: c.spec ? 'https://render-eu.worldofwarcraft.com/icons/18/' + c.spec.icon + '.jpg' : null,
+                                //_armory: 'https://worldofwarcraft.com/' + state.bnet.locale + '/character/' + c.realm + '/' + c.name,
+                                //_wowprogress: 'https://www.wowprogress.com/character/eu/' + c.realm +  '/' + c.name,
+                                //_raiderio: 'https://raider.io/characters/eu/' + c.realm +  '/' + c.name,
+                            });
+                        }
+                        commit('set-guild-members', result);
+                        resolve(result);
+                    }).catch((error) => {
+                        commit('add-app-message', {
+                            type: 'error',
+                            text: { key: 'load-guild-members-failed' },
+                            desc: error.toString(),
+                            details: error.stack
                         });
-                    }
-                    commit('set-guild-members', result);
-                    return result;
+                        reject(error);
+                    });
                 });
             },
             'load-character-items': function ({ state, commit }, { realm, name }) {
@@ -118,11 +131,16 @@ function appStore() {
                 }
 
                 return new Promise((resolve, reject) => {
-                    bnapi.wow.character.items(state.bnet.apikey, state.bnet.locale, realm, name + '123').then((items) => {
+                    bnapi.wow.character.items(state.bnet.apikey, state.bnet.locale, realm, name).then((items) => {
                         commit('set-character-items', { name: key, value: items })
                         resolve(items);
                     }).catch((error) => {
-                        commit('add-app-message', { type: 'error', text: { key: 'load-character-items-failed', args: { realm, name } }, desc: error.toString(), details: error.stack });
+                        commit('add-app-message', {
+                            type: 'error',
+                            text: { key: 'load-character-items-failed', args: { realm, name } },
+                            desc: error.toString(),
+                            details: error.stack
+                        });
                         reject(error);
                     });
                 });

@@ -20,7 +20,8 @@ function appI18n() {
                 'theme-light':                  'Light',
                 'theme-dark':                   'Dark',
                 'version':                      'Version',
-                'load-character-items-failed':  'Failed to load items for {name} from {realm}.',
+                'load-guild-members-failed':    'Failed to load guild members',
+                'load-character-items-failed':  'Failed to load items for {name} from {realm}',
             },
             ua: {
                 'close':                        'Закрити',
@@ -41,7 +42,8 @@ function appI18n() {
                 'theme-light':                  'Світле',
                 'theme-dark':                   'Темне',
                 'version':                      'Версія',
-                'load-character-items-failed':  'Не вдалося завантажити предмети для {name} з {realm}.',
+                'load-guild-members-failed':    'Не вдалося завантажити варʼятів гільдії',
+                'load-character-items-failed':  'Не вдалося завантажити предмети для {name} з {realm}',
             }
         }
     });

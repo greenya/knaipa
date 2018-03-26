@@ -95,11 +95,6 @@
                 name: this.$route.params.name,
             }; },
             created: function () {
-                /*if (this.$store.state.guild.members) {
-                    this.members = this.$store.state.guild.members;
-                } else {
-                    this.reload();
-                }*/
                 this.loading = true;
                 this.$store.dispatch('load-character-items', { realm: this.realm, name: this.name }).then((data) => {
                     console.log('loaded', data);
@@ -151,16 +146,7 @@
                 <v-flex xs12 sm6>
                     <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText" class="pt-0"></v-text-field>
                 </v-flex>
-                <v-flex v-if="error" xs12>
-                    <v-alert type="error" :value="true">
-                        <div class="title mb-4">Failed to load list of guild members</div>
-                        <code class="pa-3">{{ error }}</code>
-                        <div class="text-xs-right mt-1">
-                            <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
-                        </div>
-                    </v-alert>
-                </v-flex>
-                <v-flex v-else-if="members" xs12>
+                <v-flex v-if="members" xs12>
                     <app-member-list :members="displayMembers"></app-member-list>
                 </v-flex>
             </v-layout>
@@ -172,7 +158,6 @@
             template: '#app-members',
             data: function () { return {
                 loading: false,
-                error: null,
                 members: null,
                 searchText: '',
                 filterValue: [ 'all' ],
@@ -201,6 +186,12 @@
                 }
             },
             created: function () {
+                this.loading = true;
+                this.$store.dispatch('load-guild-members').then((members) => {
+                    this.members = members;
+                    this.loading = false;
+                });
+
                 var classes = [];
                 Object.keys(this.$store.state.game.classes).forEach((i) => {
                     classes.push({ text: this.$store.state.game.classes[ i ], value: 'class-' + i });
@@ -218,27 +209,8 @@
                     { header: 'Races' },
                     ...races.sort((a, b) => { return a.text.localeCompare(b.text); })
                 );
-
-                if (this.$store.state.guild.members) {
-                    this.members = this.$store.state.guild.members;
-                } else {
-                    this.reload();
-                }
             },
             methods: {
-                reload: function () {
-                    this.loading = true;
-                    this.members = null;
-                    this.error = null;
-                    this.$store.dispatch('load-guild-members').then((members) => {
-                        this.members = members;
-                        this.loading = false;
-                    }).catch((error) => {
-                        console.error(error);
-                        this.error = error.message;
-                        this.loading = false;
-                    });
-                },
                 filterOnChange: function (value) {
                     if (value.length === 0) {
                         value.push('all');
@@ -431,7 +403,7 @@
                 <v-flex xs12 md6 mt-3>
                     <div class="my-2 title">
                         <v-badge :color="$store.getters[ 'unseen-app-messages-count' ] > 0 ? 'error' : 'grey lighten-1'">
-                            <span slot="badge">{{ $store.getters[ 'unseen-app-messages-count' ] }}</span>
+                            <span slot="badge">{{ this.$store.state.app.messages.length }}</span>
                             <span class="pr-1">{{ $t('messages') }}</span>
                         </v-badge>
                     </div>
