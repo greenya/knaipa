@@ -43,6 +43,18 @@ bnapi.wow.data.characterClasses = function (apikey, locale) {
 
 bnapi.wow.character = {};
 
+bnapi.wow.character.profile = function (apikey, locale, realm, characterName) {
+    return new Promise((resolve, reject) => {
+        ajax.get('https://eu.api.battle.net/wow/character/' + realm + '/' + characterName, { apikey, locale }, function (status, body) {
+            if (status.code === 200) {
+                resolve(JSON.parse(body));
+            } else {
+                reject(bnapi.parseError(status, body));
+            }
+        });
+    });
+};
+
 bnapi.wow.character.items = function (apikey, locale, realm, characterName) {
     return new Promise((resolve, reject) => {
         ajax.get('https://eu.api.battle.net/wow/character/' + realm + '/' + characterName, { apikey, locale, fields: 'items' }, function (status, body) {

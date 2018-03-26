@@ -93,18 +93,17 @@
                 loading: false,
                 realm: this.$route.params.realm,
                 name: this.$route.params.name,
-                member: null,
-                items: null
+                char: null
             }; },
             created: function () {
                 this.loading = true;
                 Promise.all([
-                    this.$store.dispatch('load-guild-member', { realm: this.realm, name: this.name }),
+                    this.$store.dispatch('load-character-profile', { realm: this.realm, name: this.name }),
                     this.$store.dispatch('load-character-items', { realm: this.realm, name: this.name })
-                ]).then(([ member, items ]) => {
-                    this.member = member;
-                    this.items = items;
+                ]).then(([ profile, items ]) => {
+                    this.char = { profile, items };
                     this.loading = false;
+                    console.log('LOADED', this.char);
                 });
             }
         });
@@ -115,12 +114,15 @@
             <v-list v-if="members.length > 0" two-line>
                 <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="open(member)">
                     <v-list-tile-avatar tile>
-                        <img :src="member._thumbnail">
+                        <img :src="avatar(member)">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                         <v-list-tile-title>{{ member.name }}</v-list-tile-title>
                         <v-list-tile-sub-title>
-                            Level {{ member.level }} {{ member._race }} <span v-if="member.spec">{{ member.spec.name }}</span> {{ member._class }}
+                            Level {{ member.level }}
+                            {{ $store.state.game.races[ member.race ] }}
+                            <span v-if="member.spec">{{ member.spec.name }}</span>
+                            {{ $store.state.game.classes[ member.class ] }}
                         </v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
@@ -136,6 +138,9 @@
             template: '#app-member-list',
             props: [ 'members' ],
             methods: {
+                avatar: function (member) {
+                    return 'https://render-eu.worldofwarcraft.com/character/' + member.thumbnail + '?alt=/wow/static/images/2d/avatar/' + member.race + '-' + member.gender + '.jpg';
+                },
                 open: function (member) {
                     this.$router.push({ name: 'member', params: { realm: member.realm, name: member.name } });
                 }
@@ -247,10 +252,10 @@
                     for (var i = 0; i < this.filterValue.length; ++i) {
                         var [ type, key ] = this.filterValue[ i ].split('-');
                         if (type === 'level') {
-                            if (key === 'max' && !member._levelmaxed) {
+                            if (key === 'max' && member.level < 110) {
                                 return false;
                             }
-                            if (key === 'low' && member._levelmaxed) {
+                            if (key === 'low' && member.level === 110) {
                                 return false;
                             }
                         }
@@ -333,21 +338,21 @@
             </div>
             <v-dialog v-if="dialog.message" v-model="dialog.opened" max-width="720px">
                 <v-card>
-                    <v-card-title class="pa-0">
-                        <v-alert :type="dialog.message.type" :value="true" class="ma-0" style="width: 100%;">
+                    <v-card-text class="pa-0">
+                        <v-alert :type="dialog.message.type" :value="true" class="ma-0">
                             {{ $text(dialog.message.text) }}
                         </v-alert>
-                    </v-card-title>
+                    </v-card-text>
                     <div v-if="dialog.message.desc">
                         <v-divider></v-divider>
                         <v-card-text>
-                            {{ $text(dialog.message.desc) }}
+                            <span v-html="$text(dialog.message.desc)"></span>
                         </v-card-text>
                     </div>
-                    <div v-if="dialog.message.details">
+                    <div v-if="dialog.message.more">
                         <v-divider></v-divider>
                         <v-card-text>
-                            <pre style="overflow: auto;">{{ $text(dialog.message.details) }}</pre>
+                            <pre style="overflow: auto;">{{ $text(dialog.message.more) }}</pre>
                         </v-card-text>
                     </div>
                     <v-divider></v-divider>
@@ -450,6 +455,31 @@
         });
     </script>
 
+    <template id="app-toast">
+        <v-snackbar v-if="message" v-model="opened" :color="message.type" :timeout="8000" multi-line vertical>
+            {{ $text(message.text) }}
+            <v-btn dark flat @click.native="opened = false">{{ $t('close') }}</v-btn>
+        </v-snackbar>
+    </template>
+
+    <script>
+        Vue.component('app-toast', {
+            template: '#app-toast',
+            data: function () { return {
+                opened: false,
+                message: null
+            }; },
+            created: function () {
+                this.$store.subscribe((mutation, state) => {
+                    if (mutation.type === 'add-app-message') {
+                        this.message = mutation.payload;
+                        this.opened = true;
+                    }
+                });
+            }
+        });
+    </script>
+
     <div id="app" v-cloak>
         <v-app v-if="error">
             <v-alert v-if="error" type="error" :value="true">
@@ -488,6 +518,7 @@
             <v-footer app height="auto">
                 <span class="ma-3">{{ $t('guild-location') }}</span>
             </v-footer>
+            <app-toast />
         </v-app>
     </div>
 
