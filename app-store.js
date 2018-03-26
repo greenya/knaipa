@@ -124,6 +124,23 @@ function appStore() {
                     });
                 });
             },
+            'load-guild-member': function ({ state, commit }, { realm, name }) {
+                return this.dispatch('load-guild-members').then((members) => {
+                    var member = state.guild.members.find(i => i.realm === realm && i.name === name);
+                    if (member) {
+                        return member;
+                    } else {
+                        var error = new Error('Character ' + name + ' from ' + realm + ' is not a member of the guild');
+                        commit('add-app-message', {
+                            type: 'error',
+                            text: error.message,
+                            desc: error.toString(),
+                            details: error.stack
+                        });
+                        throw error;
+                    }
+                });
+            },
             'load-character-items': function ({ state, commit }, { realm, name }) {
                 var key = name + '@' + realm;
                 if (state.character.items[ key ]) {

@@ -93,11 +93,17 @@
                 loading: false,
                 realm: this.$route.params.realm,
                 name: this.$route.params.name,
+                member: null,
+                items: null
             }; },
             created: function () {
                 this.loading = true;
-                this.$store.dispatch('load-character-items', { realm: this.realm, name: this.name }).then((data) => {
-                    console.log('loaded', data);
+                Promise.all([
+                    this.$store.dispatch('load-guild-member', { realm: this.realm, name: this.name }),
+                    this.$store.dispatch('load-character-items', { realm: this.realm, name: this.name })
+                ]).then(([ member, items ]) => {
+                    this.member = member;
+                    this.items = items;
                     this.loading = false;
                 });
             }
