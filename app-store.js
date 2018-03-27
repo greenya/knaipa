@@ -20,6 +20,7 @@ function appStore() {
             },
             character: {
                 profile: {},
+                stats: {},
                 items: {},
             },
             pref: {
@@ -31,7 +32,7 @@ function appStore() {
             'unseen-app-messages-count': function (state) {
                 var count = 0;
                 state.app.messages.forEach((item) => {
-                    if (item.unseen) {
+                    if (!item.seen) {
                         count++;
                     }
                 });
@@ -49,10 +50,23 @@ function appStore() {
                 //      desc: undefined | string | { key: string, args: undefined | {} },       /* HTML formatting */
                 //      more: undefined | string                                                /* CODE formatting */
                 // }
-                state.app.messages.push({ ...payload, time: Date.now(), unseen: true });
+                var content = {
+                    time: Date.now(),
+                    seen: false
+                };
+
+                if (payload.error) {
+                    content.type = 'error';
+                    content.text = payload.error.message;
+                    content.desc = payload.error.toString();
+                    content.more = payload.error.stack;
+                    delete payload.error;
+                }
+
+                state.app.messages.push({ ...content, ...payload });
             },
             'mark-all-app-messages-seen': function (state) {
-                state.app.messages.forEach(i => i.unseen = false);
+                state.app.messages.forEach(i => i.seen = true);
             },
             'set-pref-lang': function (state, payload) {
                 localStorage.lang = state.pref.lang = payload;
@@ -71,6 +85,9 @@ function appStore() {
             },
             'set-character-profile': function (state, payload) {
                 state.character.profile[ payload.name ] = payload.value;
+            },
+            'set-character-stats': function (state, payload) {
+                state.character.stats[ payload.name ] = payload.value;
             },
             'set-character-items': function (state, payload) {
                 state.character.items[ payload.name ] = payload.value;
@@ -101,19 +118,13 @@ function appStore() {
                 if (state.guild.members) {
                     return state.guild.members;
                 }
-
                 return new Promise((resolve, reject) => {
                     bnapi.wow.guild.members(state.bnet.apikey, state.bnet.locale, state.bnet.realm, state.bnet.guild).then((members) => {
                         var result = members.map(i => i.character);
                         commit('set-guild-members', result);
                         resolve(result);
                     }).catch((error) => {
-                        commit('add-app-message', {
-                            type: 'error',
-                            text: { key: 'load-guild-members-failed' },
-                            desc: error.toString(),
-                            more: error.stack
-                        });
+                        commit('add-app-message', { error, text: { key: 'load-guild-members-failed' } });
                         reject(error);
                     });
                 });
@@ -123,18 +134,31 @@ function appStore() {
                 if (state.character.profile[ key ]) {
                     return state.character.profile[ key ];
                 }
-
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.profile(state.bnet.apikey, state.bnet.locale, realm, name).then((profile) => {
                         commit('set-character-profile', { name: key, value: profile });
                         resolve(profile);
                     }).catch((error) => {
                         commit('add-app-message', {
-                            type: 'error',
+                            error,
                             text: { key: 'load-character-profile-failed', args: { realm, name } },
-                            desc: { key: 'load-character-profile-failed-desc' },
-                            more: error.stack
+                            desc: { key: 'load-character-profile-failed-desc' }
                         });
+                        reject(error);
+                    });
+                });
+            },
+            'load-character-stats': function ({ state, commit }, { realm, name }) {
+                var key = name + '-' + realm;
+                if (state.character.stats[ key ]) {
+                    return state.character.stats[ key ];
+                }
+                return new Promise((resolve, reject) => {
+                    bnapi.wow.character.stats(state.bnet.apikey, state.bnet.locale, realm, name).then((stats) => {
+                        commit('set-character-stats', { name: key, value: stats });
+                        resolve(stats);
+                    }).catch((error) => {
+                        commit('add-app-message', { error, text: 'Failed to load stats for ' + name + ' from ' + realm });
                         reject(error);
                     });
                 });
@@ -144,18 +168,12 @@ function appStore() {
                 if (state.character.items[ key ]) {
                     return state.character.items[ key ];
                 }
-
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.items(state.bnet.apikey, state.bnet.locale, realm, name).then((items) => {
                         commit('set-character-items', { name: key, value: items });
                         resolve(items);
                     }).catch((error) => {
-                        commit('add-app-message', {
-                            type: 'error',
-                            text: { key: 'load-character-items-failed', args: { realm, name } },
-                            desc: error.toString(),
-                            more: error.stack
-                        });
+                        commit('add-app-message', { error, text: 'Failed to load items for ' + name + ' from ' + realm });
                         reject(error);
                     });
                 });

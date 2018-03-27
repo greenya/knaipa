@@ -62,27 +62,34 @@
         });
     </script>
 
+    <template id="app-member-profile">
+        <div>
+            member profile goes here...
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-member-profile', {
+            template: '#app-member-profile'
+        });
+    </script>
+
     <template id="app-member">
         <v-container grid-list-xl>
             <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
-            <v-layout row wrap>
-                <!--v-flex sm6 px-3>
-                    <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange"></v-select>
+            <v-layout v-else row wrap>
+                <v-flex xs12>
+                    {{ profile.name }} from {{ profile.realm }} -- {{ items.averageItemLevelEquipped }}
                 </v-flex>
-                <v-flex sm6 px-3>
-                    <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText"></v-text-field>
-                </v-flex-->
+                <v-flex xs12>
+                    <v-tabs fixed-tabs color="transparent">
+                        <v-tab v-for="(item, index) in nav" :key="index" :to="item.to">{{ item.name }}</v-tab>
+                    </v-tabs>
+                </v-flex>
+                <v-flex xs12>
+                    <router-view></router-view>
+                </v-flex>
             </v-layout>
-            <!--v-alert v-if="error" type="error" :value="true">
-                <div class="title mb-4">Failed to load character data</div>
-                <code class="pa-3">{{ error }}</code>
-                <div class="text-xs-right mt-1">
-                    <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
-                </div>
-            </v-alert-->
-            <span>
-                <code>{{ name }} @ {{ realm }}</code>
-            </span>
         </v-container>
     </template>
 
@@ -91,19 +98,26 @@
             template: '#app-member',
             data: function () { return {
                 loading: false,
-                realm: this.$route.params.realm,
-                name: this.$route.params.name,
-                char: null
+                nav: [
+                    { to: { name: 'member-profile' }, name: 'Profile' },
+                    { to: { name: 'member-titles' }, name: 'Titles' },
+                    { to: { name: 'member-reputation' }, name: 'Reputation' },
+                    /*{ to: { name: 'member-professions' }, name: 'Professions' },
+                    { to: { name: 'member-achievements' }, name: 'Achievements' },
+                    { to: { name: 'member-statistics' }, name: 'Statistics' }*/
+                ],
+                profile: null,
+                items: null
             }; },
             created: function () {
                 this.loading = true;
                 Promise.all([
-                    this.$store.dispatch('load-character-profile', { realm: this.realm, name: this.name }),
-                    this.$store.dispatch('load-character-items', { realm: this.realm, name: this.name })
+                    this.$store.dispatch('load-character-profile', this.$route.params),
+                    this.$store.dispatch('load-character-items', this.$route.params)
                 ]).then(([ profile, items ]) => {
-                    this.char = { profile, items };
+                    this.profile = profile;
+                    this.items = items;
                     this.loading = false;
-                    console.log('LOADED', this.char);
                 });
             }
         });
@@ -418,11 +432,11 @@
                             <span class="pr-1">{{ $t('messages') }}</span>
                         </v-badge>
                     </div>
-                    <app-system-messages />
+                    <app-system-messages></app-system-messages>
                 </v-flex>
                 <v-flex xs12 md6 mt-3>
                     <div class="my-2 title">{{ $t('libraries') }}</div>
-                    <app-system-libraries />
+                    <app-system-libraries></app-system-libraries>
                 </v-flex>
             </v-layout>
         </v-container>
@@ -458,7 +472,7 @@
     <template id="app-toast">
         <v-snackbar v-if="message" v-model="opened" :color="message.type" :timeout="8000" multi-line vertical>
             {{ $text(message.text) }}
-            <v-btn dark flat @click.native="opened = false">{{ $t('close') }}</v-btn>
+            <v-btn flat @click.native="opened = false">{{ $t('close') }}</v-btn>
         </v-snackbar>
     </template>
 
@@ -471,8 +485,8 @@
             }; },
             created: function () {
                 this.$store.subscribe((mutation, state) => {
-                    if (mutation.type === 'add-app-message') {
-                        this.message = mutation.payload;
+                    if (mutation.type === 'add-app-message' && !this.opened) {
+                        this.message = this.$store.state.app.messages[ this.$store.state.app.messages.length - 1 ];
                         this.opened = true;
                     }
                 });
@@ -483,7 +497,7 @@
     <div id="app" v-cloak>
         <v-app v-if="error">
             <v-alert v-if="error" type="error" :value="true">
-                <div class="title mb-4">Application failed to load essential game data</div>
+                <div class="title mb-4">Application failed to load essential data</div>
                 <code class="pa-3">{{ error }}</code>
                 <div class="text-xs-right mt-1">
                     <v-btn :loading="loading" :disabled="loading" @click.native="reload()">Try again</v-btn>
@@ -518,7 +532,7 @@
             <v-footer app height="auto">
                 <span class="ma-3">{{ $t('guild-location') }}</span>
             </v-footer>
-            <app-toast />
+            <app-toast></app-toast>
         </v-app>
     </div>
 

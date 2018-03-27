@@ -23,7 +23,6 @@ function appI18n() {
                 'load-guild-members-failed':            'Failed to load guild members',
                 'load-character-profile-failed':        'Failed to load profile for {name} from {realm}',
                 'load-character-profile-failed-desc':   'This character profile could not be displayed, possibly for one of the following reasons:<br>1. The character has been inactive for long time.<br>2. The character is undergoing a process such as a realm transfer or faction change.<br>3. The character is below level 10 and thus cannot be displayed.',
-                'load-character-items-failed':          'Failed to load items for {name} from {realm}',
             },
             ua: {
                 'close':                                'Закрити',
@@ -47,7 +46,6 @@ function appI18n() {
                 'load-guild-members-failed':            'Не вдалося завантажити варʼятів гільдії',
                 'load-character-profile-failed':        'Не вдалося завантажити профіль для {name} з {realm}',
                 'load-character-profile-failed-desc':   'Профіль варʼята не може бути відображений, можливо через одну з наступних причин:<br>1. Варʼят був неактивний занадто довго.<br>2. Варʼят проходить процес realm-трасферу або зміни фракції.<br>3. Рівень варʼята нижче 10 і тому не може бути відображений.',
-                'load-character-items-failed':          'Не вдалося завантажити предмети для {name} з {realm}',
             }
         }
     });

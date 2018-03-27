@@ -2,10 +2,6 @@ function appRouter() {
     return new VueRouter({
         routes: [
             {
-                path: '/',
-                redirect: { name: 'home' }
-            },
-            {
                 name: 'home',
                 path: '/home',
                 component: Vue.component('app-home')
@@ -23,7 +19,29 @@ function appRouter() {
             {
                 name: 'member',
                 path: '/members/:realm/:name',
-                component: Vue.component('app-member')
+                redirect: { name: 'member-profile' },
+                component: Vue.component('app-member'),
+                children: [
+                    {
+                        name: 'member-profile',
+                        path: 'profile',
+                        component: Vue.component('app-member-profile')
+                    },
+                    {
+                        name: 'member-titles',
+                        path: 'titles',
+                        component: Vue.component('app-member-titles', { template: '<span>placeholder for app-member-titles component</span>' })
+                    },
+                    {
+                        name: 'member-reputation',
+                        path: 'reputation',
+                        component: Vue.component('app-member-reputation', { template: '<span>placeholder for app-member-reputation component</span>' })
+                    }
+                ]
+            },
+            {
+                path: '/',
+                redirect: { name: 'home' }
             },
             {
                 path: '*',
