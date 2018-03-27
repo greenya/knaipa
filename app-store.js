@@ -8,8 +8,8 @@ function appStore() {
             bnet: {
                 apikey: 'rt5ajdz37zrmecdtrxwgyyyxhqujkayw',
                 locale: 'en_GB',
-                realm:  'Terokkar',
-                guild:  'Knaipa Variativ LV'
+                realm: 'Terokkar',
+                guild: 'Knaipa Variativ LV'
             },
             game: {
                 races: null,

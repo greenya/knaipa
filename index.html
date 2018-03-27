@@ -75,22 +75,33 @@
     </script>
 
     <template id="app-member">
-        <v-container grid-list-xl>
-            <v-progress-circular v-if="loading" indeterminate color="primary"></v-progress-circular>
-            <v-layout v-else row wrap>
-                <v-flex xs12>
-                    {{ profile.name }} from {{ profile.realm }} -- {{ items.averageItemLevelEquipped }}
-                </v-flex>
-                <v-flex xs12>
-                    <v-tabs fixed-tabs color="transparent">
-                        <v-tab v-for="(item, index) in nav" :key="index" :to="item.to">{{ item.name }}</v-tab>
-                    </v-tabs>
-                </v-flex>
-                <v-flex xs12>
-                    <router-view></router-view>
-                </v-flex>
-            </v-layout>
-        </v-container>
+        <div>
+            <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
+            <v-container v-else grid-list-xl>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <v-avatar tile size="84">
+                            <img :src="$root.characterThumbnail(profile)">
+                        </v-avatar>
+                        {{ profile.name }} from {{ profile.realm }} -- {{ items.averageItemLevelEquipped }}
+                    </v-flex>
+                </v-layout>
+                <v-layout row>
+                    <v-flex xs12>
+                        <v-tabs fixed-tabs color="transparent">
+                            <v-tab v-for="(item, index) in nav" :key="index" :to="item.to">{{ item.name }}</v-tab>
+                        </v-tabs>
+                    </v-flex>
+                </v-layout>
+                <v-layout row>
+                    <v-flex xs12>
+                        <v-fade-transition mode="out-in">
+                            <router-view></router-view>
+                        </v-fade-transition>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+        </div>
     </template>
 
     <script>
@@ -128,7 +139,7 @@
             <v-list v-if="members.length > 0" two-line>
                 <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="open(member)">
                     <v-list-tile-avatar tile>
-                        <img :src="avatar(member)">
+                        <img :src="$root.characterThumbnail(member)">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                         <v-list-tile-title>{{ member.name }}</v-list-tile-title>
@@ -152,9 +163,6 @@
             template: '#app-member-list',
             props: [ 'members' ],
             methods: {
-                avatar: function (member) {
-                    return 'https://render-eu.worldofwarcraft.com/character/' + member.thumbnail + '?alt=/wow/static/images/2d/avatar/' + member.race + '-' + member.gender + '.jpg';
-                },
                 open: function (member) {
                     this.$router.push({ name: 'member', params: { realm: member.realm, name: member.name } });
                 }
@@ -357,19 +365,19 @@
                             {{ $text(dialog.message.text) }}
                         </v-alert>
                     </v-card-text>
+                    <v-divider></v-divider>
                     <div v-if="dialog.message.desc">
-                        <v-divider></v-divider>
                         <v-card-text>
                             <span v-html="$text(dialog.message.desc)"></span>
                         </v-card-text>
+                        <v-divider></v-divider>
                     </div>
                     <div v-if="dialog.message.more">
-                        <v-divider></v-divider>
                         <v-card-text>
                             <pre style="overflow: auto;">{{ $text(dialog.message.more) }}</pre>
                         </v-card-text>
+                        <v-divider></v-divider>
                     </div>
-                    <v-divider></v-divider>
                     <v-card-actions>
                         <span class="ml-3 grey--text">
                             <v-icon small class="mr-1">access_time</v-icon>
@@ -496,7 +504,7 @@
 
     <div id="app" v-cloak>
         <v-app v-if="error">
-            <v-alert v-if="error" type="error" :value="true">
+            <v-alert type="error" :value="true">
                 <div class="title mb-4">Application failed to load essential data</div>
                 <code class="pa-3">{{ error }}</code>
                 <div class="text-xs-right mt-1">
@@ -505,7 +513,7 @@
             </v-alert>
         </v-app>
         <v-app v-else-if="loading">
-            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+            <v-progress-circular indeterminate color="primary" class="ma-4"></v-progress-circular>
         </v-app>
         <v-app v-else :light="$store.state.pref.theme === 'light'" :dark="$store.state.pref.theme === 'dark'">
             <v-toolbar app>
@@ -541,7 +549,7 @@
             el: '#app',
             data: function () { return {
                 loading: true,
-                error: false,
+                error: null,
                 nav: [
                     { to: { name: 'home' }, icon: 'home', name: 'home' },
                     { to: { name: 'members' }, icon: 'people', name: 'members' },
@@ -555,12 +563,19 @@
             methods: {
                 reload: function () {
                     this.loading = true;
+                    this.error = null;
                     this.$store.dispatch('load-game-data').then(() => {
                         this.loading = false;
                     }).catch((error) => {
                         this.error = error.message;
                         this.loading = false;
                     });
+                },
+                characterThumbnail: function (character) {
+                    return 'https://render-eu.worldofwarcraft.com/character/' +
+                        character.thumbnail + '?alt=/wow/static/images/2d/avatar/' +
+                        character.race + '-' +
+                        character.gender + '.jpg';
                 }
             },
             router: appRouter(),
