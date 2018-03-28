@@ -4,10 +4,6 @@ Vue.mixin({
             return;
         }
 
-        this.$text = function (text) {
-            return typeof text === 'object' ? this.$t(text.key, text.args) : text;
-        };
-
         if (this.$options.vars) {
             this.$options.vars.forEach((variable) => {
                 var key = this.$options.name + '-' + variable;
@@ -20,6 +16,14 @@ Vue.mixin({
                     this.$store.commit('set-app-var', { key, value });
                 });
             });
+        }
+
+        this.$text = function (text) {
+            return typeof text === 'object' ? this.$t(text.key, text.args) : text;
+        };
+
+        this.$avatar = function ({ thumbnail, race, gender }) {
+            return 'https://render-eu.worldofwarcraft.com/character/' + thumbnail + '?alt=/wow/static/images/2d/avatar/' + race + '-' + gender + '.jpg';
         }
     }
 });

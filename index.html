@@ -23,7 +23,7 @@
 
     <template id="app-page-not-found">
         <v-container grid-list-xl v-once>
-            <v-layout row wrap>
+            <v-layout wrap>
                 <v-flex xs12 title>{{ $t('page-not-found') }}</v-flex>
                 <v-flex xs12>{{ $t('page-not-found-text') }}</v-flex>
             </v-layout>
@@ -38,7 +38,7 @@
 
     <template id="app-home">
         <v-container grid-list-xl v-once>
-            <v-layout row wrap>
+            <v-layout wrap>
                 <v-flex xs12 title>Welcome</v-flex>
                 <v-flex xs12>
                     Hello and welcome to our small community! This page should say something smart and funny about us, too bad nothing comes
@@ -78,22 +78,28 @@
         <div>
             <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
             <v-container v-else grid-list-xl>
-                <v-layout row wrap>
-                    <v-flex xs12>
-                        <v-avatar tile size="84">
-                            <img :src="$root.characterThumbnail(profile)">
+                <v-layout>
+                    <v-spacer></v-spacer>
+                    <v-flex style="flex: none;">
+                        <v-avatar tile size="84" class="elevation-10">
+                            <img :src="$avatar(profile)">
                         </v-avatar>
-                        {{ profile.name }} from {{ profile.realm }} -- {{ items.averageItemLevelEquipped }}
                     </v-flex>
+                    <v-flex>
+                        <div class="display-1">{{ profile.name }}</div>
+                        <div class="body-1">{{ $store.state.game.races[ profile.race ] }} {{ $store.state.game.classes[ profile.class ] }}</div>
+                        <div class="body-1">Level {{ profile.level }}</div>
+                    </v-flex>
+                    <v-spacer></v-spacer>
                 </v-layout>
-                <v-layout row>
+                <v-layout>
                     <v-flex xs12>
                         <v-tabs fixed-tabs color="transparent">
                             <v-tab v-for="(item, index) in nav" :key="index" :to="item.to">{{ item.name }}</v-tab>
                         </v-tabs>
                     </v-flex>
                 </v-layout>
-                <v-layout row>
+                <v-layout>
                     <v-flex xs12>
                         <v-fade-transition mode="out-in">
                             <router-view></router-view>
@@ -139,7 +145,7 @@
             <v-list v-if="members.length > 0" two-line>
                 <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="open(member)">
                     <v-list-tile-avatar tile>
-                        <img :src="$root.characterThumbnail(member)">
+                        <img :src="$avatar(member)">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                         <v-list-tile-title>{{ member.name }}</v-list-tile-title>
@@ -172,7 +178,7 @@
 
     <template id="app-members">
         <v-container grid-list-xl>
-            <v-layout row wrap>
+            <v-layout wrap>
                 <v-flex xs12 sm6>
                     <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange" class="pt-0"></v-select>
                 </v-flex>
@@ -417,7 +423,7 @@
 
     <template id="app-settings">
         <v-container grid-list-xl>
-            <v-layout row wrap>
+            <v-layout wrap>
                 <v-flex xs12 title>{{ $t('settings') }}</v-flex>
                 <v-flex xs12 sm6>
                     <p>{{ $t('language') }}</p>
@@ -570,12 +576,6 @@
                         this.error = error.message;
                         this.loading = false;
                     });
-                },
-                characterThumbnail: function (character) {
-                    return 'https://render-eu.worldofwarcraft.com/character/' +
-                        character.thumbnail + '?alt=/wow/static/images/2d/avatar/' +
-                        character.race + '-' +
-                        character.gender + '.jpg';
                 }
             },
             router: appRouter(),
