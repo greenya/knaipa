@@ -87,8 +87,12 @@
                     </v-flex>
                     <v-flex>
                         <div class="display-1">{{ profile.name }}</div>
-                        <div class="body-1">{{ $store.state.game.races[ profile.race ] }} {{ $store.state.game.classes[ profile.class ] }}</div>
-                        <div class="body-1">Level {{ profile.level }}</div>
+                        <div class="body-1">
+                            {{ profile.level }}
+                            {{ $store.state.game.races[ profile.race ] }}
+                            <span v-if="activeSpec">{{ activeSpec.name }}</span>
+                            {{ $store.state.game.classes[ profile.class ] }}
+                        </div>
                     </v-flex>
                     <v-spacer></v-spacer>
                 </v-layout>
@@ -124,15 +128,23 @@
                     { to: { name: 'member-statistics' }, name: 'Statistics' }*/
                 ],
                 profile: null,
+                talents: null,
                 items: null
             }; },
+            computed: {
+                activeSpec: function () {
+                    return (this.talents.find(i => i.selected) || {}).spec;
+                }
+            },
             created: function () {
                 this.loading = true;
                 Promise.all([
                     this.$store.dispatch('load-character-profile', this.$route.params),
+                    this.$store.dispatch('load-character-talents', this.$route.params),
                     this.$store.dispatch('load-character-items', this.$route.params)
-                ]).then(([ profile, items ]) => {
+                ]).then(([ profile, talents, items ]) => {
                     this.profile = profile;
+                    this.talents = talents;
                     this.items = items;
                     this.loading = false;
                 });
@@ -150,7 +162,7 @@
                     <v-list-tile-content>
                         <v-list-tile-title>{{ member.name }}</v-list-tile-title>
                         <v-list-tile-sub-title>
-                            Level {{ member.level }}
+                            {{ member.level }}
                             {{ $store.state.game.races[ member.race ] }}
                             <span v-if="member.spec">{{ member.spec.name }}</span>
                             {{ $store.state.game.classes[ member.class ] }}

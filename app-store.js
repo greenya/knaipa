@@ -20,6 +20,7 @@ function appStore() {
             },
             character: {
                 profile: {},
+                talents: {},
                 stats: {},
                 items: {},
             },
@@ -86,6 +87,9 @@ function appStore() {
             'set-character-profile': function (state, payload) {
                 state.character.profile[ payload.name ] = payload.value;
             },
+            'set-character-talents': function (state, payload) {
+                state.character.talents[ payload.name ] = payload.value;
+            },
             'set-character-stats': function (state, payload) {
                 state.character.stats[ payload.name ] = payload.value;
             },
@@ -144,6 +148,21 @@ function appStore() {
                             text: { key: 'load-character-profile-failed', args: { realm, name } },
                             desc: { key: 'load-character-profile-failed-desc' }
                         });
+                        reject(error);
+                    });
+                });
+            },
+            'load-character-talents': function ({ state, commit }, { realm, name }) {
+                var key = name + '-' + realm;
+                if (state.character.talents[ key ]) {
+                    return state.character.talents[ key ];
+                }
+                return new Promise((resolve, reject) => {
+                    bnapi.wow.character.talents(state.bnet.apikey, state.bnet.locale, realm, name).then((talents) => {
+                        commit('set-character-talents', { name: key, value: talents });
+                        resolve(talents);
+                    }).catch((error) => {
+                        commit('add-app-message', { error, text: 'Failed to load talents for ' + name + ' from ' + realm });
                         reject(error);
                     });
                 });
