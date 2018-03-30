@@ -1,9 +1,30 @@
 bnapi = {};
 
-bnapi.error = function (status, body) {
-    var error = status.code + ' ' + status.text;
-    if (body.indexOf('{') === 0) {
-        var body = JSON.parse(body);
+bnapi.get = function (url, params = {}) {
+    return new Promise((resolve, reject) => {
+        var q = [];
+        for (var key in params) {
+            q.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[ key ]));
+        }
+        var x = new XMLHttpRequest();
+        x.open('GET', url + (q.length ? '?' + q.join('&') : ''), true);
+        x.onreadystatechange = function () {
+            if (x.readyState === 4) {
+                if (x.status >= 200 && x.status <= 299) {
+                    resolve(JSON.parse(x.responseText));
+                } else {
+                    reject(bnapi.error(x));
+                }
+            }
+        };
+        x.send();
+    });
+}
+
+bnapi.error = function (x) {
+    var error = x.status + ' ' + x.statusText;
+    if (x.responseText.indexOf('{') === 0) {
+        var body = JSON.parse(x.responseText);
         if (body.reason) {
             error += ': ' + body.reason;
         } else if (body.detail) {
@@ -15,16 +36,8 @@ bnapi.error = function (status, body) {
 
 bnapi.wow = {};
 
-bnapi.wow.get = function (service, params) {
-    return new Promise((resolve, reject) => {
-        ajax.get('https://eu.api.battle.net/wow/' + service, params, function (status, body) {
-            if (status.code === 200) {
-                resolve(JSON.parse(body));
-            } else {
-                reject(bnapi.error(status, body));
-            }
-        });
-    });
+bnapi.wow.get = function (service, params = {}) {
+    return bnapi.get('https://eu.api.battle.net/wow/' + service, params);
 }
 
 bnapi.wow.data = {};
