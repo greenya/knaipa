@@ -25,5 +25,10 @@ Vue.mixin({
         this.$avatar = function ({ thumbnail, race, gender }) {
             return 'https://render-eu.worldofwarcraft.com/character/' + thumbnail + '?alt=/wow/static/images/2d/avatar/' + race + '-' + gender + '.jpg';
         }
+
+        this.$icon = function ({ icon, size = 'large' }) {
+            size = size === 'large' ? 56 : size === 'medium' ? 36 : 18;
+            return 'https://render-eu.worldofwarcraft.com/icons/' + size + '/' + icon + '.jpg';
+        }
     }
 });

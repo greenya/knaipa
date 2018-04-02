@@ -85,12 +85,19 @@
                         </v-avatar>
                     </v-flex>
                     <v-flex>
-                        <div class="display-1">{{ profile.name }}</div>
-                        <div class="body-1">
-                            {{ profile.level }}
-                            {{ $store.state.game.races[ profile.race ] }}
-                            <span v-if="activeSpec">{{ activeSpec.name }}</span>
-                            {{ $store.state.game.classes[ profile.class ] }}
+                        <div class="display-1 ml-1 mb-2">{{ profile.name }}</div>
+                        <div class="hidden-xs-only text-xs-right" style="float:right; margin-top: -48px; max-width: 100px;">
+                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" disabled small color="transparent">
+                                {{ item.text }}
+                                <v-icon right>{{ item.micon }}</v-icon>
+                            </v-chip>
+                        </div>
+                        <div>
+                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" disabled small>
+                                <v-avatar v-if="item.icon"><img :src="$icon({ icon: item.icon })"></v-avatar>
+                                <v-avatar v-if="item.micon"><v-icon>{{ item.micon }}</v-icon></v-avatar>
+                                {{ item.text }}
+                            </v-chip>
                         </div>
                     </v-flex>
                     <v-spacer></v-spacer>
@@ -128,7 +135,8 @@
                 ],
                 profile: null,
                 talents: null,
-                items: null
+                items: null,
+                meta: [],
             }; },
             computed: {
                 activeSpec: function () {
@@ -145,8 +153,30 @@
                     this.profile = profile;
                     this.talents = talents;
                     this.items = items;
+                    this.initMeta();
                     this.loading = false;
                 });
+            },
+            methods: {
+                initMeta: function () {
+                    this.meta.push({ text: this.profile.achievementPoints, micon: 'star' });
+                    this.meta.push({ text: this.items.averageItemLevelEquipped, micon: 'turned_in' });
+                    this.meta.push({ text: this.profile.totalHonorableKills, micon: 'restaurant_menu' });
+
+                    if (this.profile.level < 110) {
+                        this.meta.push({ text: this.profile.level, icon: 'achievement_level_110' });
+                    }
+
+                    var race = this.$store.state.game.races[ this.profile.race ];
+                    this.meta.push({ text: race.name, icon: race.icon[ this.profile.gender ] });
+
+                    var cls = this.$store.state.game.classes[ this.profile.class ];
+                    this.meta.push({ text: cls.name, icon: cls.icon });
+
+                    if (this.activeSpec) {
+                        this.meta.push({ text: this.activeSpec.name, icon: this.activeSpec.icon });
+                    }
+                }
             }
         });
     </script>
@@ -162,9 +192,9 @@
                         <v-list-tile-title>{{ member.name }}</v-list-tile-title>
                         <v-list-tile-sub-title>
                             {{ member.level }}
-                            {{ $store.state.game.races[ member.race ] }}
+                            {{ $store.state.game.races[ member.race ].name }}
                             <span v-if="member.spec">{{ member.spec.name }}</span>
-                            {{ $store.state.game.classes[ member.class ] }}
+                            {{ $store.state.game.classes[ member.class ].name }}
                         </v-list-tile-sub-title>
                     </v-list-tile-content>
                 </v-list-tile>
@@ -244,7 +274,7 @@
 
                 var classes = [];
                 Object.keys(this.$store.state.game.classes).forEach((i) => {
-                    classes.push({ text: this.$store.state.game.classes[ i ], value: 'class-' + i });
+                    classes.push({ text: this.$store.state.game.classes[ i ].name, value: 'class-' + i });
                 });
                 this.filterItems.push(
                     { header: 'Classes' },
@@ -253,7 +283,10 @@
 
                 var races = [];
                 Object.keys(this.$store.state.game.races).forEach((i) => {
-                    races.push({ text: this.$store.state.game.races[ i ], value: 'race-' + i });
+                    var r = this.$store.state.game.races[ i ];
+                    if (r.side === 'alliance') {
+                        races.push({ text: r.name, value: 'race-' + i });
+                    }
                 });
                 this.filterItems.push(
                     { header: 'Races' },

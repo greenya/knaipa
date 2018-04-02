@@ -105,16 +105,49 @@ function appStore() {
                 ]).then(([ races, classes ]) => {
                     var racesResult = {};
                     for (var i = 0; i < races.length; ++i) {
-                        if (races[ i ].side === 'alliance') {
-                            racesResult[ races[ i ].id ] = races[ i ].name;
-                        }
+                        racesResult[ races[ i ].id ] = races[ i ];
                     }
+
+                    racesResult[ 1 ].icon = [ 'race_human_male', 'race_human_female' ];
+                    racesResult[ 2 ].icon = [ 'race_orc_male', 'race_orc_female' ];
+                    racesResult[ 3 ].icon = [ 'race_dwarf_male', 'race_dwarf_female' ];
+                    racesResult[ 4 ].icon = [ 'race_night-elf_male', 'race_night-elf_female' ];
+                    racesResult[ 5 ].icon = [ 'race_undead_male', 'race_undead_female' ];
+                    racesResult[ 6 ].icon = [ 'race_tauren_male', 'race_tauren_female' ];
+                    racesResult[ 7 ].icon = [ 'race_gnome_male', 'race_gnome_female' ];
+                    racesResult[ 8 ].icon = [ 'race_troll_male', 'race_troll_female' ];
+                    racesResult[ 9 ].icon = [ 'race_goblin_male', 'race_goblin_female' ];
+                    racesResult[ 10 ].icon = [ 'race_blood-elf_male', 'race_blood-elf_female' ];
+                    racesResult[ 11 ].icon = [ 'race_draenei_male', 'race_draenei_female' ];
+                    racesResult[ 22 ].icon = [ 'race_worgen_male', 'race_worgen_female' ];
+                    racesResult[ 24 ].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // neutral pandaren
+                    racesResult[ 25 ].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // alliance pandaren
+                    racesResult[ 26 ].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // horde pandaren
+                    racesResult[ 27 ].icon = [ 'inv_nightbornemale', 'inv_nightbornefemale' ];
+                    racesResult[ 28 ].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ];
+                    racesResult[ 29 ].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ];
+                    racesResult[ 30 ].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ];
+
                     commit('set-game-races', racesResult);
 
                     var classesResult = {};
                     for (var i = 0; i < classes.length; ++i) {
-                        classesResult[ classes[ i ].id ] = classes[ i ].name;
+                        classesResult[ classes[ i ].id ] = classes[ i ];
                     }
+
+                    classesResult[ 1 ].icon = 'class_warrior';
+                    classesResult[ 2 ].icon = 'class_paladin';
+                    classesResult[ 3 ].icon = 'class_hunter';
+                    classesResult[ 4 ].icon = 'class_rogue';
+                    classesResult[ 5 ].icon = 'class_priest';
+                    classesResult[ 6 ].icon = 'class_death-knight';
+                    classesResult[ 7 ].icon = 'class_shaman';
+                    classesResult[ 8 ].icon = 'class_mage';
+                    classesResult[ 9 ].icon = 'class_warlock';
+                    classesResult[ 10 ].icon = 'class_monk';
+                    classesResult[ 11 ].icon = 'class_druid';
+                    classesResult[ 12 ].icon = 'class_demon-hunter';
+
                     commit('set-game-classes', classesResult);
                 });
             },
