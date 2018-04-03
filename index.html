@@ -63,13 +63,27 @@
 
     <template id="app-member-profile">
         <div>
-            member profile goes here...
+            <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
+            <v-chip v-else v-for="(value, key) in stats" :key="key" disabled>
+                {{ key }}:&nbsp;<b>{{ value }}</b>
+            </v-chip>
         </div>
     </template>
 
     <script>
         Vue.component('app-member-profile', {
-            template: '#app-member-profile'
+            template: '#app-member-profile',
+            data: function () { return {
+                loading: false,
+                stats: null
+            }; },
+            created: function () {
+                this.loading = true;
+                this.$store.dispatch('load-character-stats', this.$route.params).then((stats) => {
+                    this.stats = stats;
+                    this.loading = false;
+                });
+            }
         });
     </script>
 
