@@ -30,7 +30,7 @@ function appRouter() {
                     {
                         name: 'member-titles',
                         path: 'titles',
-                        component: Vue.component('app-member-titles', { template: '<span>placeholder for app-member-titles component</span>' })
+                        component: Vue.component('app-member-titles')
                     },
                     {
                         name: 'member-reputation',

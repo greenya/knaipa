@@ -23,6 +23,7 @@ function appStore() {
                 talents: {},
                 stats: {},
                 items: {},
+                titles: {}
             },
             pref: {
                 lang: localStorage.lang === 'ua' ? 'ua' : 'en',
@@ -95,6 +96,9 @@ function appStore() {
             },
             'set-character-items': function (state, payload) {
                 state.character.items[ payload.name ] = payload.value;
+            },
+            'set-character-titles': function (state, payload) {
+                state.character.titles[ payload.name ] = payload.value;
             }
         }, // end of mutations
         actions: {
@@ -230,6 +234,25 @@ function appStore() {
                     });
                 });
             },
+            'load-character-titles': function ({ state, commit }, { realm, name }) {
+                var key = name + '-' + realm;
+                if (state.character.titles[ key ]) {
+                    return state.character.titles[ key ];
+                }
+                return new Promise((resolve, reject) => {
+                    bnapi.wow.character.titles(state.bnet.apikey, state.bnet.locale, realm, name).then((titles) => {
+                        var result = {};
+                        for (var i = 0; i < titles.length; ++i) {
+                            result[ titles[ i ].id ] = titles[ i ];
+                        }
+                        commit('set-character-titles', { name: key, value: result });
+                        resolve(result);
+                    }).catch((error) => {
+                        commit('add-app-message', { error, text: 'Failed to load titles for ' + name + ' from ' + realm });
+                        reject(error);
+                    });
+                });
+            }
         } // end of actions
     });
 }

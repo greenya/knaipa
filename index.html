@@ -65,7 +65,7 @@
         <div>
             <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
             <v-chip v-else v-for="(value, key) in stats" :key="key" disabled>
-                {{ key }}:&nbsp;<b>{{ value }}</b>
+                {{ key }}&nbsp;<b>{{ value }}</b>
             </v-chip>
         </div>
     </template>
@@ -81,6 +81,51 @@
                 this.loading = true;
                 this.$store.dispatch('load-character-stats', this.$route.params).then((stats) => {
                     this.stats = stats;
+                    this.loading = false;
+                });
+            }
+        });
+    </script>
+
+    <template id="app-member-titles">
+        <div>
+            <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
+            <div v-else class="text-xs-center">
+                <div v-if="displayTitles.length > 0">
+                    <v-chip v-for="(value, index) in displayTitles" :key="index" disabled label :color="value.color">
+                        <span class="body-1" v-html="value.text"></span>
+                    </v-chip>
+                </div>
+                <div v-else class="my-4 grey--text">
+                    {{ $t('list-is-empty') }}
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-member-titles', {
+            template: '#app-member-titles',
+            data: function () { return {
+                loading: false,
+                titles: null
+            }; },
+            computed: {
+                displayTitles: function () {
+                    var name = this.$route.params.name;
+                    var result = Object.values(this.titles).map((item) => {
+                        return {
+                            text: (item.name || '').replace('%s', '<b>' + name + '</b>'),
+                            color: item.selected ? '' : 'transparent'
+                        };
+                    });
+                    return result.sort((a, b) => { return a.text.localeCompare(b.text); });
+                }
+            },
+            created: function () {
+                this.loading = true;
+                this.$store.dispatch('load-character-titles', this.$route.params).then((titles) => {
+                    this.titles = titles;
                     this.loading = false;
                 });
             }
@@ -286,9 +331,8 @@
                     this.loading = false;
                 });
 
-                var classes = [];
-                Object.keys(this.$store.state.game.classes).forEach((i) => {
-                    classes.push({ text: this.$store.state.game.classes[ i ].name, value: 'class-' + i });
+                var classes = Object.values(this.$store.state.game.classes).map((item) => {
+                    return { text: item.name, value: 'class-' + item.id };
                 });
                 this.filterItems.push(
                     { header: 'Classes' },
@@ -296,10 +340,9 @@
                 );
 
                 var races = [];
-                Object.keys(this.$store.state.game.races).forEach((i) => {
-                    var r = this.$store.state.game.races[ i ];
-                    if (r.side === 'alliance') {
-                        races.push({ text: r.name, value: 'race-' + i });
+                Object.values(this.$store.state.game.races).forEach((item) => {
+                    if (item.side === 'alliance') {
+                        races.push({ text: item.name, value: 'race-' + item.id });
                     }
                 });
                 this.filterItems.push(
