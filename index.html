@@ -93,7 +93,7 @@
             <div v-else class="text-xs-center">
                 <div v-if="displayTitles.length > 0">
                     <v-chip v-for="(value, index) in displayTitles" :key="index" disabled label :color="value.color">
-                        <span class="body-1" v-html="value.text"></span>
+                        <span v-html="value.text" class="body-1"></span>
                     </v-chip>
                 </div>
                 <div v-else class="my-4 grey--text">
@@ -243,7 +243,7 @@
     <template id="app-member-list">
         <div>
             <v-list v-if="members.length > 0" two-line>
-                <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="open(member)">
+                <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="$emit('open', member)">
                     <v-list-tile-avatar tile>
                         <img :src="$avatar(member)">
                     </v-list-tile-avatar>
@@ -267,12 +267,7 @@
     <script>
         Vue.component('app-member-list', {
             template: '#app-member-list',
-            props: [ 'members' ],
-            methods: {
-                open: function (member) {
-                    this.$router.push({ name: 'member', params: { realm: member.realm, name: member.name } });
-                }
-            }
+            props: [ 'members' ]
         });
     </script>
 
@@ -286,7 +281,7 @@
                     <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText" class="pt-0"></v-text-field>
                 </v-flex>
                 <v-flex v-if="members" xs12>
-                    <app-member-list :members="displayMembers"></app-member-list>
+                    <app-member-list :members="displayMembers" @open="memberOpen"></app-member-list>
                 </v-flex>
             </v-layout>
         </v-container>
@@ -351,6 +346,10 @@
                 );
             },
             methods: {
+                memberOpen: function (member) {
+                    console.log(member);
+                    this.$router.push({ name: 'member', params: { realm: member.realm, name: member.name } });
+                },
                 filterOnChange: function (value) {
                     if (value.length === 0) {
                         value.push('all');
