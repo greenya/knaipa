@@ -7,6 +7,7 @@ function appStore() {
             },
             bnet: {
                 apikey: 'rt5ajdz37zrmecdtrxwgyyyxhqujkayw',
+                region: 'EU', // not used
                 locale: 'en_GB',
                 realm: 'Terokkar',
                 guild: 'Knaipa Variativ LV'
@@ -23,7 +24,8 @@ function appStore() {
                 talents: {},
                 stats: {},
                 items: {},
-                titles: {}
+                titles: {},
+                reputation: {}
             },
             pref: {
                 lang: localStorage.lang === 'ua' ? 'ua' : 'en',
@@ -99,6 +101,9 @@ function appStore() {
             },
             'set-character-titles': function (state, payload) {
                 state.character.titles[ payload.name ] = payload.value;
+            },
+            'set-character-reputation': function (state, payload) {
+                state.character.reputation[ payload.name ] = payload.value;
             }
         }, // end of mutations
         actions: {
@@ -108,9 +113,7 @@ function appStore() {
                     bnapi.wow.data.characterClasses(state.bnet.apikey, state.bnet.locale)
                 ]).then(([ races, classes ]) => {
                     var racesResult = {};
-                    for (var i = 0; i < races.length; ++i) {
-                        racesResult[ races[ i ].id ] = races[ i ];
-                    }
+                    races.forEach((item) => { racesResult[ item.id ] = item; });
 
                     racesResult[ 1 ].icon = [ 'race_human_male', 'race_human_female' ];
                     racesResult[ 2 ].icon = [ 'race_orc_male', 'race_orc_female' ];
@@ -135,9 +138,7 @@ function appStore() {
                     commit('set-game-races', racesResult);
 
                     var classesResult = {};
-                    for (var i = 0; i < classes.length; ++i) {
-                        classesResult[ classes[ i ].id ] = classes[ i ];
-                    }
+                    classes.forEach((item) => { classesResult[ item.id ] = item; });
 
                     classesResult[ 1 ].icon = 'class_warrior';
                     classesResult[ 2 ].icon = 'class_paladin';
@@ -242,13 +243,28 @@ function appStore() {
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.titles(state.bnet.apikey, state.bnet.locale, realm, name).then((titles) => {
                         var result = {};
-                        for (var i = 0; i < titles.length; ++i) {
-                            result[ titles[ i ].id ] = titles[ i ];
-                        }
+                        titles.forEach((item) => { result[ item.id ] = item; });
                         commit('set-character-titles', { name: key, value: result });
                         resolve(result);
                     }).catch((error) => {
                         commit('add-app-message', { error, text: 'Failed to load titles for ' + name + ' from ' + realm });
+                        reject(error);
+                    });
+                });
+            },
+            'load-character-reputation': function ({ state, commit }, { realm, name }) {
+                var key = name + '-' + realm;
+                if (state.character.reputation[ key ]) {
+                    return state.character.reputation[ key ];
+                }
+                return new Promise((resolve, reject) => {
+                    bnapi.wow.character.reputation(state.bnet.apikey, state.bnet.locale, realm, name).then((reputation) => {
+                        var result = {};
+                        reputation.forEach((item) => { result[ item.id ] = item; });
+                        commit('set-character-reputation', { name: key, value: result });
+                        resolve(result);
+                    }).catch((error) => {
+                        commit('add-app-message', { error, text: 'Failed to load reputation for ' + name + ' from ' + realm });
                         reject(error);
                     });
                 });

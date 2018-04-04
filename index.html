@@ -92,8 +92,8 @@
             <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
             <div v-else class="text-xs-center">
                 <div v-if="displayTitles.length > 0">
-                    <v-chip v-for="(value, index) in displayTitles" :key="index" disabled label :color="value.color">
-                        <span v-html="value.text" class="body-1"></span>
+                    <v-chip v-for="(item, index) in displayTitles" :key="index" :title="item.hint" :color="item.color" disabled>
+                        <span v-html="item.text" class="body-1"></span>
                     </v-chip>
                 </div>
                 <div v-else class="my-4 grey--text">
@@ -116,6 +116,7 @@
                     var result = Object.values(this.titles).map((item) => {
                         return {
                             text: (item.name || '').replace('%s', '<b>' + name + '</b>'),
+                            hint: item.selected ? 'Selected title' : null,
                             color: item.selected ? '' : 'transparent'
                         };
                     });
@@ -126,6 +127,34 @@
                 this.loading = true;
                 this.$store.dispatch('load-character-titles', this.$route.params).then((titles) => {
                     this.titles = titles;
+                    this.loading = false;
+                });
+            }
+        });
+    </script>
+
+    <template id="app-member-reputation">
+        <div>
+            <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
+            <div v-else>
+                <v-chip v-for="(value, key) in reputation" :key="key" disabled>
+                    {{ key }}&nbsp;<b>{{ value }}</b>
+                </v-chip>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-member-reputation', {
+            template: '#app-member-reputation',
+            data: function () { return {
+                loading: false,
+                reputation: null
+            }; },
+            created: function () {
+                this.loading = true;
+                this.$store.dispatch('load-character-reputation', this.$route.params).then((reputation) => {
+                    this.reputation = reputation;
                     this.loading = false;
                 });
             }
@@ -145,14 +174,14 @@
                     </v-flex>
                     <v-flex>
                         <div class="display-1 ml-1 mb-2">{{ profile.name }}</div>
-                        <div class="hidden-xs-only text-xs-right" style="float:right; margin-top: -48px; max-width: 100px;">
-                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" disabled small color="transparent">
-                                {{ item.text }}
+                        <div class="hidden-xs-only text-xs-right" style="float:right; margin-top: -48px; max-width: 140px;">
+                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" :title="$text(item.hint)" disabled color="transparent" text-color="secondary">
+                                <span class="headline">{{ item.text }}</span>
                                 <v-icon right>{{ item.micon }}</v-icon>
                             </v-chip>
                         </div>
                         <div>
-                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" disabled small>
+                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" :title="$text(item.hint)" disabled small>
                                 <v-avatar v-if="item.icon"><img :src="$icon({ icon: item.icon })"></v-avatar>
                                 <v-avatar v-if="item.micon"><v-icon>{{ item.micon }}</v-icon></v-avatar>
                                 {{ item.text }}
@@ -164,7 +193,7 @@
                 <v-layout>
                     <v-flex xs12>
                         <v-tabs fixed-tabs color="transparent">
-                            <v-tab v-for="(item, index) in nav" :key="index" :to="item.to">{{ item.name }}</v-tab>
+                            <v-tab v-for="(item, index) in nav" :key="index" :to="item.to">{{ $t(item.name) }}</v-tab>
                         </v-tabs>
                     </v-flex>
                 </v-layout>
@@ -185,9 +214,9 @@
             data: function () { return {
                 loading: false,
                 nav: [
-                    { to: { name: 'member-profile' }, name: 'Profile' },
-                    { to: { name: 'member-titles' }, name: 'Titles' },
-                    { to: { name: 'member-reputation' }, name: 'Reputation' },
+                    { to: { name: 'member-profile' }, name: 'profile' },
+                    { to: { name: 'member-titles' }, name: 'titles' },
+                    { to: { name: 'member-reputation' }, name: 'reputation' },
                     /*{ to: { name: 'member-professions' }, name: 'Professions' },
                     { to: { name: 'member-achievements' }, name: 'Achievements' },
                     { to: { name: 'member-statistics' }, name: 'Statistics' }*/
@@ -218,12 +247,11 @@
             },
             methods: {
                 initMeta: function () {
-                    this.meta.push({ text: this.profile.achievementPoints, micon: 'star' });
-                    this.meta.push({ text: this.items.averageItemLevelEquipped, micon: 'turned_in' });
-                    this.meta.push({ text: this.profile.totalHonorableKills, micon: 'restaurant_menu' });
+                    this.meta.push({ text: this.profile.achievementPoints, hint: { key: 'achievement-points' }, micon: 'star' });
+                    this.meta.push({ text: this.items.averageItemLevelEquipped, hint: { key: 'average-equipped-item-level' }, micon: 'turned_in' });
 
                     if (this.profile.level < 110) {
-                        this.meta.push({ text: this.profile.level, icon: 'achievement_level_110' });
+                        this.meta.push({ text: this.profile.level, hint: { key: 'character-level' }, icon: 'achievement_level_110' });
                     }
 
                     var race = this.$store.state.game.races[ this.profile.race ];
@@ -233,7 +261,7 @@
                     this.meta.push({ text: cls.name, icon: cls.icon });
 
                     if (this.activeSpec) {
-                        this.meta.push({ text: this.activeSpec.name, icon: this.activeSpec.icon });
+                        this.meta.push({ text: this.activeSpec.name, hint: this.activeSpec.role, icon: this.activeSpec.icon });
                     }
                 }
             }
@@ -347,7 +375,6 @@
             },
             methods: {
                 memberOpen: function (member) {
-                    console.log(member);
                     this.$router.push({ name: 'member', params: { realm: member.realm, name: member.name } });
                 },
                 filterOnChange: function (value) {
