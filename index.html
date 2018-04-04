@@ -2,9 +2,10 @@
 <html>
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
     <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vuex"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
@@ -92,7 +93,7 @@
             <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
             <div v-else class="text-xs-center">
                 <div v-if="displayTitles.length > 0">
-                    <v-chip v-for="(item, index) in displayTitles" :key="index" :title="item.hint" :color="item.color" disabled>
+                    <v-chip v-for="(item, index) in displayTitles" :key="index" :title="$t(item.hint)" :color="item.color" disabled>
                         <span v-html="item.text" class="body-1"></span>
                     </v-chip>
                 </div>
@@ -116,7 +117,7 @@
                     var result = Object.values(this.titles).map((item) => {
                         return {
                             text: (item.name || '').replace('%s', '<b>' + name + '</b>'),
-                            hint: item.selected ? 'Selected title' : null,
+                            hint: item.selected ? 'selected-character-title' : null,
                             color: item.selected ? '' : 'transparent'
                         };
                     });
@@ -247,11 +248,11 @@
             },
             methods: {
                 initMeta: function () {
-                    this.meta.push({ text: this.profile.achievementPoints, hint: { key: 'achievement-points' }, micon: 'star' });
-                    this.meta.push({ text: this.items.averageItemLevelEquipped, hint: { key: 'average-equipped-item-level' }, micon: 'turned_in' });
+                    this.meta.push({ text: this.profile.achievementPoints, hint: { _: 'achievement-points' }, micon: 'star' });
+                    this.meta.push({ text: this.items.averageItemLevelEquipped, hint: { _: 'average-equipped-item-level' }, micon: 'turned_in' });
 
                     if (this.profile.level < 110) {
-                        this.meta.push({ text: this.profile.level, hint: { key: 'character-level' }, icon: 'achievement_level_110' });
+                        this.meta.push({ text: this.profile.level, hint: { _: 'character-level' }, icon: 'achievement_level_110' });
                     }
 
                     var race = this.$store.state.game.races[ this.profile.race ];
@@ -343,7 +344,7 @@
                     if (this.members) {
                         return this.$t('total-members-shown', { shown: this.displayMembers.length, total: this.members.length });
                     } else {
-                        return this.$t('loading');
+                        return this.$t('loading...');
                     }
                 }
             },

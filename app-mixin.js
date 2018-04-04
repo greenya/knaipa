@@ -19,7 +19,7 @@ Vue.mixin({
         }
 
         this.$text = function (text) {
-            return typeof text === 'object' ? this.$t(text.key, text.args) : text;
+            return typeof text === 'object' ? this.$t(text._, text) : text;
         };
 
         this.$avatar = function ({ thumbnail, race, gender }) {

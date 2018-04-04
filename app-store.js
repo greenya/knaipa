@@ -50,9 +50,9 @@ function appStore() {
             'add-app-message': function (state, payload) {
                 // payload: {
                 //      type: 'info' | 'error' | 'warning',
-                //      text: string | { key: string, args: undefined | {} },
-                //      desc: undefined | string | { key: string, args: undefined | {} },       /* HTML formatting */
-                //      more: undefined | string                                                /* CODE formatting */
+                //      text: string | { _: string, ... },
+                //      desc: undefined | string | { _: string, ... },          /* HTML formatting */
+                //      more: undefined | string                                /* CODE formatting */
                 // }
                 var content = {
                     time: Date.now(),
@@ -166,7 +166,7 @@ function appStore() {
                         commit('set-guild-members', result);
                         resolve(result);
                     }).catch((error) => {
-                        commit('add-app-message', { error, text: { key: 'load-guild-members-failed' } });
+                        commit('add-app-message', { error, text: { _: 'load-guild-members-failed' } });
                         reject(error);
                     });
                 });
@@ -183,8 +183,8 @@ function appStore() {
                     }).catch((error) => {
                         commit('add-app-message', {
                             error,
-                            text: { key: 'load-character-profile-failed', args: { realm, name } },
-                            desc: { key: 'load-character-profile-failed-desc' }
+                            text: { _: 'load-character-profile-failed', realm, name },
+                            desc: { _: 'load-character-profile-failed-desc' }
                         });
                         reject(error);
                     });
