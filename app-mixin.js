@@ -18,15 +18,17 @@ Vue.mixin({
             });
         }
 
-        this.$text = function (text) {
+        this.$app = {};
+
+        this.$app.text = (text) => {
             return typeof text === 'object' ? this.$t(text._, text) : text;
         };
 
-        this.$avatar = function ({ thumbnail, race, gender }) {
+        this.$app.avatar = ({ thumbnail, race, gender }) => {
             return 'https://render-eu.worldofwarcraft.com/character/' + thumbnail + '?alt=/wow/static/images/2d/avatar/' + race + '-' + gender + '.jpg';
         }
 
-        this.$icon = function ({ icon, size = 'large' }) {
+        this.$app.icon = ({ icon, size = 'large' }) => {
             size = size === 'large' ? 56 : size === 'medium' ? 36 : 18;
             return 'https://render-eu.worldofwarcraft.com/icons/' + size + '/' + icon + '.jpg';
         }

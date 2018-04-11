@@ -16,7 +16,7 @@
     <script src="app-router.js"></script>
     <script src="app-i18n.js"></script>
     <script src="app-mixin.js"></script>
-    <style>[v-cloak] { display: none; };</style>
+    <style>[v-cloak] { display: none; }</style>
 </head>
 
 <body>
@@ -170,20 +170,20 @@
                     <v-spacer></v-spacer>
                     <v-flex style="flex: none;">
                         <v-avatar tile size="84" class="elevation-10">
-                            <img :src="$avatar(profile)">
+                            <img :src="$app.avatar(profile)">
                         </v-avatar>
                     </v-flex>
                     <v-flex>
                         <div class="display-1 ml-1 mb-2">{{ profile.name }}</div>
                         <div class="hidden-xs-only text-xs-right" style="float:right; margin-top: -48px; max-width: 140px;">
-                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" :title="$text(item.hint)" disabled color="transparent" text-color="secondary">
+                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" :title="$app.text(item.hint)" disabled color="transparent" text-color="secondary">
                                 <span class="headline">{{ item.text }}</span>
                                 <v-icon right>{{ item.micon }}</v-icon>
                             </v-chip>
                         </div>
                         <div>
-                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" :title="$text(item.hint)" disabled small>
-                                <v-avatar v-if="item.icon"><img :src="$icon({ icon: item.icon })"></v-avatar>
+                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" :title="$app.text(item.hint)" disabled small>
+                                <v-avatar v-if="item.icon"><img :src="$app.icon({ icon: item.icon })"></v-avatar>
                                 <v-avatar v-if="item.micon"><v-icon>{{ item.micon }}</v-icon></v-avatar>
                                 {{ item.text }}
                             </v-chip>
@@ -274,7 +274,7 @@
             <v-list v-if="members.length > 0" two-line>
                 <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="$emit('open', member)">
                     <v-list-tile-avatar tile>
-                        <img :src="$avatar(member)">
+                        <img :src="$app.avatar(member)">
                     </v-list-tile-avatar>
                     <v-list-tile-content>
                         <v-list-tile-title>{{ member.name }}</v-list-tile-title>
@@ -477,10 +477,10 @@
                             <v-icon :color="message.type">{{ message.type }}</v-icon>
                         </v-list-tile-avatar>
                         <v-list-tile-content>
-                            <v-list-tile-title v-if="message.text">{{ $text(message.text) }}</v-list-tile-title>
+                            <v-list-tile-title v-if="message.text">{{ $app.text(message.text) }}</v-list-tile-title>
                             <v-list-tile-sub-title>
                                 <span>{{ new Date(message.time).toLocaleTimeString() }}</span>
-                                <span v-if="message.desc">&mdash; {{ $text(message.desc) }}</span>
+                                <span v-if="message.desc">&mdash; {{ $app.text(message.desc) }}</span>
                             </v-list-tile-sub-title>
                         </v-list-tile-content>
                     </v-list-tile>
@@ -496,19 +496,19 @@
                 <v-card>
                     <v-card-text class="pa-0">
                         <v-alert :type="dialog.message.type" :value="true" class="ma-0">
-                            {{ $text(dialog.message.text) }}
+                            {{ $app.text(dialog.message.text) }}
                         </v-alert>
                     </v-card-text>
                     <v-divider></v-divider>
                     <div v-if="dialog.message.desc">
                         <v-card-text>
-                            <span v-html="$text(dialog.message.desc)"></span>
+                            <span v-html="$app.text(dialog.message.desc)"></span>
                         </v-card-text>
                         <v-divider></v-divider>
                     </div>
                     <div v-if="dialog.message.more">
                         <v-card-text>
-                            <pre style="overflow: auto;">{{ $text(dialog.message.more) }}</pre>
+                            <pre style="overflow: auto;">{{ $app.text(dialog.message.more) }}</pre>
                         </v-card-text>
                         <v-divider></v-divider>
                     </div>
@@ -567,7 +567,7 @@
                         <v-btn flat value="dark">{{ $t('theme-dark') }}</v-btn>
                     </v-btn-toggle>
                 </v-flex>
-                <v-flex xs12 md6 mt-3>
+                <v-flex xs12 sm6 mt-3>
                     <div class="my-2 title">
                         <v-badge :color="$store.getters[ 'unseen-app-messages-count' ] > 0 ? 'error' : 'grey lighten-1'">
                             <span slot="badge">{{ this.$store.state.app.messages.length }}</span>
@@ -576,7 +576,7 @@
                     </div>
                     <app-system-messages></app-system-messages>
                 </v-flex>
-                <v-flex xs12 md6 mt-3>
+                <v-flex xs12 sm6 mt-3>
                     <div class="my-2 title">{{ $t('libraries') }}</div>
                     <app-system-libraries></app-system-libraries>
                 </v-flex>
@@ -613,7 +613,7 @@
 
     <template id="app-toast">
         <v-snackbar v-if="message" v-model="opened" :color="message.type" :timeout="8000" multi-line vertical>
-            {{ $text(message.text) }}
+            {{ $app.text(message.text) }}
             <v-btn flat @click.native="opened = false">{{ $t('close') }}</v-btn>
         </v-snackbar>
     </template>
