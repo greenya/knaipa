@@ -14,7 +14,66 @@ function appStore() {
             },
             game: {
                 races: null,
-                classes: null
+                classes: null,
+                factions: [
+                    {
+                        title: 'Legion',
+                        members: { any: [ 1828, 1859, 1883, 1888, 1894, 1900, 1947, 1948, 1975, 1989, 2018, 2045, 2135, 2165, 2170 ] },
+                        groups: [
+                            { title: 'The Fishing Masters', members: { any: [ 2097, 2098, 2099, 2100, 2101, 2102 ] } }
+                        ]
+                    },
+                    {
+                        title: 'Warlords of Draenor',
+                        members: { any: [ 1515, 1520, 1711, 1732, 1849, 1850 ], 0: [ 1682, 1710, 1731, 1847 ], 1: [ 1445, 1681, 1708, 1848 ] },
+                        groups: [
+                            { title: 'Barracks Bodyguards', members: { any: [ 1736, 1737, 1741 ], 0: [ 1733, 1738 ], 1: [ 1739, 1740 ] } }
+                        ]
+                    },
+                    {
+                        title: 'Mists of Pandaria',
+                        members: { any: [ 1216, 1228, 1269, 1270, 1271, 1337, 1341, 1345, 1351, 1359, 1435, 1440, 1492 ], 0: [ 1242, 1376, 1387 ], 1: [ 1375, 1388 ] },
+                        groups: [
+                            { title: 'The Anglers', members: { any: [ 1358 ] } },
+                            { title: 'The Tillers', members: { any: [ 1273, 1275, 1276, 1277, 1278, 1279, 1280, 1281, 1282, 1283 ] } }
+                        ]
+                    },
+                    {
+                        title: 'Cataclysm',
+                        members: { any: [ 1135, 1158, 1171, 1173, 1204 ], 0: [ 1174, 1177 ], 1: [ 1172, 1178 ] }
+                    },
+                    {
+                        title: 'Wrath of the Lich King',
+                        members: { any: [ 1073, 1090, 1091, 1098, 1106, 1119, 1156 ] },
+                        groups: [
+                            { title: 'Alliance Vanguard', members: { 0: [ 1050, 1068, 1094, 1126 ] } },
+                            { title: 'Horde Expedition', members: { 1: [ 1064, 1067, 1085, 1124 ] } },
+                            { title: 'Sholazar Basin', members: { any: [ 1104, 1105 ] } }
+                        ]
+                    },
+                    {
+                        title: 'The Burning Crusade',
+                        members: { any: [ 933, 942, 967, 970, 989, 990, 1012, 1015, 1038 ], 0: [ 946, 978 ], 1: [ 922, 941, 947 ] },
+                        groups: [
+                            { title: 'Shattrath City', members: { any: [ 932, 934, 935, 1011, 1031, 1077 ] } }
+                        ]
+                    },
+                    {
+                        title: 'Classic',
+                        members: { any: [ 59, 70, 87, 92, 93, 270, 349, 529, 576, 609, 749, 809, 909, 910 ] },
+                        groups: [
+                            { title: 'Alliance', members: { 0: [ 47, 54, 69, 72, 930, 1134, 1353 ] } },
+                            { title: 'Alliance Forces', members: { 0: [ 509, 730, 890, 2011 ] } },
+                            { title: 'Horde', members: { 1: [ 68, 76, 81, 530, 911, 1133, 1352 ] } },
+                            { title: 'Horde Forces', members: { 1: [ 510, 729, 889, 2010 ] } },
+                            { title: 'Steamwheedle Cartel', members: { any: [ 21, 577, 369, 470 ] } }
+                        ]
+                    },
+                    {
+                        title: 'Guild',
+                        members: { any: [ 1168 ] }
+                    }
+                ]
             },
             guild: {
                 members: null
