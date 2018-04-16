@@ -134,9 +134,54 @@
         });
     </script>
 
+    <template id="app-progress-linear">
+        <div class="text-xs-center" style="position: relative;">
+            <v-progress-linear :value="value" :color="color" :height="height" class="ma-0"></v-progress-linear>
+            <span :class="textClass" :style="slotStyle">{{ text }}</span>
+        </div>
+    </template>
+
+    <script>
+        Vue.component('app-progress-linear', {
+            template: '#app-progress-linear',
+            props: {
+                value: { type: Number, required: true },
+                height: { type: Number, default: 20 },
+                color: { type: String, default: 'grey' },
+                text: { type: String, default: '' },
+                textClass: { type: String, default: 'body-2' }
+            },
+            data: function () { return {
+                slotStyle: {
+                    position: 'absolute',
+                    marginTop: '-' + this.height + 'px',
+                    marginLeft: '-50%',
+                    lineHeight: this.height + 'px',
+                    width: '100%',
+                    zIndex: 1,
+                    color: 'white',
+                    textShadow: '0 0 3px grey'
+                }
+            }; }
+        });
+    </script>
+
     <template id="app-member-reputation-progress">
         <div>
-            {{ rep }}
+            <v-layout class="hidden-sm-and-up">
+                <v-flex xs12>
+                    <div style="float: left;">{{ rep.name }}</div>
+                    <div style="float: right;">{{ $t(standing.text) }}</div>
+                    <app-progress-linear :value="progressPercent" :text="progressText" :color="standing.color"></app-progress-linear>
+                </v-flex>
+            </v-layout>
+            <v-layout class="hidden-xs-only" style="line-height: 26px;">
+                <v-flex xs3 text-xs-right>{{ rep.name }}</v-flex>
+                <v-flex xs6>
+                    <app-progress-linear :value="progressPercent" :text="progressText" :color="standing.color" :height="26"></app-progress-linear>
+                </v-flex>
+                <v-flex xs3>{{ $t(standing.text) }}</v-flex>
+            </v-layout>
         </div>
     </template>
 
@@ -145,6 +190,18 @@
             template: '#app-member-reputation-progress',
             props: {
                 rep: { type: Object, required: true }
+            },
+            computed: {
+                progressPercent: function () {
+                    return this.rep.max === 0 && this.rep.value === 0 ? 100 : Math.round(this.rep.value * 100 / this.rep.max);
+                },
+                progressText: function () {
+                    return this.rep.max === 0 && this.rep.value === 0 ? '' : this.rep.value + ' / ' + this.rep.max;
+                },
+                standing: function () {
+                    var i = this.rep.max === 8400 || (this.rep.max === 0 && this.rep.value === 0 && this.rep.standing === 5) ? 1 : 0;
+                    return this.$store.state.game.standings[ i ][ this.rep.standing ];
+                }
             }
         });
     </script>
@@ -153,19 +210,21 @@
         <div>
             <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
             <div v-else>
-                <div v-for="(cat, i) in $store.state.game.factions">
+                <div v-for="(cat, i) in $store.state.game.factions" :key="i">
                     <div v-if="displayReps(cat.members).length > 0">
                         <v-divider class="mt-4 mb-2" v-if="i > 0"></v-divider>
-                        <v-subheader class="title" style="text-transform: uppercase;">{{ cat.title }}</v-subheader>
-                        <div v-for="rep in displayReps(cat.members)">
-                            <app-member-reputation-progress :rep="rep"></app-member-reputation-progress>
-                        </div>
-                        <div v-if="cat.groups" v-for="group in cat.groups">
+                        <v-flex xs12>
+                            <v-subheader class="hidden-sm-and-up title" style="text-transform: uppercase;">{{ cat.title }}</v-subheader>
+                            <v-subheader class="hidden-xs-only display-1 my-2" style="text-transform: uppercase;">{{ cat.title }}</v-subheader>
+                        </v-flex>
+                        <app-member-reputation-progress v-for="rep in displayReps(cat.members)" :key="rep.id" :rep="rep"></app-member-reputation-progress>
+                        <div v-if="cat.groups" v-for="(group, j) in cat.groups" :key="j">
                             <div v-if="displayReps(group.members).length > 0">
-                                <v-subheader>{{ group.title }}</v-subheader>
-                                <div v-for="rep in displayReps(group.members)">
-                                    <app-member-reputation-progress :rep="rep"></app-member-reputation-progress>
-                                </div>
+                                <v-flex xs12>
+                                    <v-subheader class="hidden-sm-and-up subtitle">{{ group.title }}</v-subheader>
+                                    <v-subheader class="hidden-xs-only title">{{ group.title }}</v-subheader>
+                                </v-flex>
+                                <app-member-reputation-progress v-for="rep in displayReps(group.members)" :key="rep.id" :rep="rep"></app-member-reputation-progress>
                             </div>
                         </div>
                     </div>

@@ -73,7 +73,27 @@ function appStore() {
                         title: 'Guild',
                         members: { any: [ 1168 ] }
                     }
-                ]
+                ], // end of factions
+                standings: [
+                    [
+                        { text: 'standing-hated', color: 'red' },
+                        { text: 'standing-hostile', color: 'red' },
+                        { text: 'standing-unfriendly', color: 'yellow darken-2' },
+                        { text: 'standing-neutral', color: 'yellow darken-2' },
+                        { text: 'standing-friendly', color: 'green' },
+                        { text: 'standing-honored', color: 'green' },
+                        { text: 'standing-revered', color: 'green' },
+                        { text: 'standing-exalted', color: 'teal lighten-2' }
+                    ],
+                    [
+                        { text: 'standing-stranger', color: 'deep-orange darken-2' },
+                        { text: 'standing-pal', color: 'yellow darken-2' },
+                        { text: 'standing-buddy', color: 'green' },
+                        { text: 'standing-friend', color: 'green' },
+                        { text: 'standing-good-friend', color: 'green' },
+                        { text: 'standing-best-friend', color: 'teal lighten-2' }
+                    ]
+                ] // end of standings
             },
             guild: {
                 members: null
