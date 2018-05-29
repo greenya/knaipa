@@ -500,7 +500,7 @@
                 },
                 filterMember: function (member) {
                     if (this.searchText) {
-                        if (member.name.toLowerCase().indexOf(this.searchText) < 0) {
+                        if (member.name.toLowerCase().indexOf(this.searchText.toLowerCase()) < 0) {
                             return false;
                         }
                     }
