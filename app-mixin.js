@@ -1,3 +1,5 @@
+'use strict';
+
 Vue.mixin({
     created: function () {
         if (!this.$options.name || !this.$options.name.startsWith('app-')) {

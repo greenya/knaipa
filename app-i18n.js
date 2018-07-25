@@ -1,3 +1,5 @@
+'use strict';
+
 function appI18n() {
     var localization = {
         'achievement-points':                       { en: 'Achievement points', ua: 'Очок досягнень' },

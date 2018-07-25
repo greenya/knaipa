@@ -1,3 +1,5 @@
+'use strict';
+
 function appStore() {
     return new Vuex.Store({
         state: {

@@ -1,3 +1,5 @@
+'use strict';
+
 function appRouter() {
     return new VueRouter({
         routes: [

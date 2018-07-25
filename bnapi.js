@@ -1,4 +1,6 @@
-bnapi = {};
+'use strict';
+
+var bnapi = {};
 
 bnapi.get = function (url, params = {}) {
     return new Promise((resolve, reject) => {
