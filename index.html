@@ -51,8 +51,8 @@
                         <li><a target="_blank" href="https://www.facebook.com/groups/715447525207978/">Facebook group</a></li>
                         <li><a target="_blank" href="https://discord.gg/jembZVK">Discord channel invitation</a></li>
                         <li><a target="_blank" href="https://eu.blizzard.com/invite/JMRJPYSyq0">Battle.net community group invitation</a></li>
-                        <li><a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17618053653">Battle.net recruting forum thread</a></li>
                         <li><a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17615632657">Battle.net looking for players forum thread</a></li>
+                        <li><a target="_blank" href="https://eu.battle.net/forums/en/wow/topic/17618053653">Battle.net old recruting forum thread</a></li>
                     </ul>
                 </v-flex>
             </v-layout>
@@ -68,7 +68,7 @@
     <template id="app-member-profile">
         <div>
             <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
-            <v-chip v-else v-for="(value, key) in stats" :key="key" disabled>
+            <v-chip v-else v-for="(value, key) in stats" :key="key">
                 {{ key }}&nbsp;<b>{{ value }}</b>
             </v-chip>
         </div>
@@ -96,7 +96,7 @@
             <v-progress-circular v-if="loading" indeterminate color="primary" class="ma-4"></v-progress-circular>
             <div v-else class="text-xs-center">
                 <div v-if="displayTitles.length > 0">
-                    <v-chip v-for="(item, index) in displayTitles" :key="index" :title="$t(item.hint)" :color="item.color" disabled>
+                    <v-chip v-for="(item, index) in displayTitles" :key="index" :title="$t(item.hint)" :color="item.color">
                         <span v-html="item.text" class="body-1"></span>
                     </v-chip>
                 </div>
@@ -280,13 +280,13 @@
                     <v-flex>
                         <div class="display-1 ml-1 mb-2">{{ profile.name }}</div>
                         <div class="hidden-xs-only text-xs-right" style="float:right; margin-top: -48px; max-width: 140px;">
-                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" :title="$app.text(item.hint)" disabled color="transparent" text-color="secondary">
+                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" :title="$app.text(item.hint)" color="transparent" text-color="secondary">
                                 <span class="headline">{{ item.text }}</span>
                                 <v-icon right>{{ item.micon }}</v-icon>
                             </v-chip>
                         </div>
                         <div>
-                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" :title="$app.text(item.hint)" disabled small>
+                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" :title="$app.text(item.hint)" small>
                                 <v-avatar v-if="item.icon"><img :src="$app.icon({ icon: item.icon })"></v-avatar>
                                 <v-avatar v-if="item.micon"><v-icon>{{ item.micon }}</v-icon></v-avatar>
                                 {{ item.text }}
