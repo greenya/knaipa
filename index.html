@@ -710,6 +710,7 @@
                 theme: function (value) {
                     if (value) {
                         this.$store.commit('set-pref-theme', value);
+                        this.$vuetify.theme.dark = value == 'dark';
                     } else {
                         this.theme = this.$store.state.pref.theme;
                     }
@@ -756,7 +757,7 @@
         <v-app v-else-if="loading">
             <v-progress-circular indeterminate color="primary" class="ma-4"></v-progress-circular>
         </v-app>
-        <v-app v-else :light="$store.state.pref.theme === 'light'" :dark="$store.state.pref.theme === 'dark'">
+        <v-app v-else>
             <v-app-bar app>
                 <v-app-bar-nav-icon></v-app-bar-nav-icon>
                 <v-toolbar-title>{{ $t('guild-title') }}</v-toolbar-title>
@@ -797,6 +798,7 @@
             }; },
             created: function () {
                 this.$i18n.locale = this.$store.state.pref.lang;
+                this.$vuetify.theme.dark = this.$store.state.pref.theme == 'dark';
                 this.reload();
             },
             methods: {
