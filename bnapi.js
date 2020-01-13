@@ -1,6 +1,32 @@
 'use strict';
 
-var bnapi = {};
+var bnapi = {
+    region: false,
+    locale: false,
+    token: false,
+};
+
+bnapi.auth = function (apiKey, apiSecret, region, locale) {
+    return new Promise((resolve, reject) => {
+        var x = new XMLHttpRequest();
+        x.open('POST', 'https://' + region + '.battle.net/oauth/token', true);
+        x.setRequestHeader('Authorization', 'Basic ' + btoa(apiKey + ':' + apiSecret));
+        x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        x.onreadystatechange = function () {
+            if (x.readyState === 4) {
+                if (x.status >= 200 && x.status <= 299) {
+                    bnapi.region = region;
+                    bnapi.locale = locale;
+                    bnapi.token = JSON.parse(x.responseText).access_token;
+                    resolve();
+                } else {
+                    reject(bnapi.error(x));
+                }
+            }
+        };
+        x.send('grant_type=client_credentials');
+    });
+}
 
 bnapi.get = function (url, params = {}) {
     return new Promise((resolve, reject) => {
@@ -39,17 +65,20 @@ bnapi.error = function (x) {
 bnapi.wow = {};
 
 bnapi.wow.get = function (service, params = {}) {
-    return bnapi.get('https://eu.api.battle.net/wow/' + service, params);
-}
-
-bnapi.wow.data = {};
-
-bnapi.wow.data.characterRaces = function (apikey, locale) {
-    return bnapi.wow.get('data/character/races', { apikey, locale }).then(data => data.races);
+    if (params.namespace) {
+        params.namespace += '-' + bnapi.region;
+    }
+    params.locale = bnapi.locale;
+    params.access_token = bnapi.token;
+    return bnapi.get('https://' + bnapi.region + '.api.blizzard.com/data/wow/' + service, params);
 };
 
-bnapi.wow.data.characterClasses = function (apikey, locale) {
-    return bnapi.wow.get('data/character/classes', { apikey, locale }).then(data => data.classes);
+bnapi.wow.playableRaces = function () {
+    return bnapi.wow.get('playable-race/index', { namespace: 'static' }).then(data => data.races);
+};
+
+bnapi.wow.playableClasses = function () {
+    return bnapi.wow.get('playable-class/index', { namespace: 'static' }).then(data => data.classes);
 };
 
 bnapi.wow.character = {};
