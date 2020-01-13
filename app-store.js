@@ -138,11 +138,13 @@ function appStore() {
                 // }
                 var content = {
                     time: Date.now(),
-                    seen: false
+                    seen: false,
+                    icon: 'mdi-information'
                 };
 
                 if (payload.error) {
                     content.type = 'error';
+                    content.icon = 'mdi-alert';
                     content.text = payload.error.message;
                     content.desc = payload.error.toString();
                     content.more = payload.error.stack;

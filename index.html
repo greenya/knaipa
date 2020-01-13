@@ -548,15 +548,15 @@
 
     <template id="app-system-libraries">
         <v-list two-line>
-            <v-list-tile v-for="(lib, index) in libs" avatar :key="index">
-                <v-list-tile-avatar tile>
-                    <v-icon>settings</v-icon>
-                </v-list-tile-avatar>
-                <v-list-tile-content>
-                    <v-list-tile-title>{{ lib.name }}</v-list-tile-title>
-                    <v-list-tile-sub-title>{{ $t('version') }}: {{ lib.version }}</v-list-tile-sub-title>
-                </v-list-tile-content>
-            </v-list-tile>
+            <v-list-item v-for="(lib, index) in libs" :key="index">
+                <v-list-item-avatar tile>
+                    <v-icon>mdi-settings</v-icon>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                    <v-list-item-title>{{ lib.name }}</v-list-item-title>
+                    <v-list-item-subtitle>{{ $t('version') }}: {{ lib.version }}</v-list-item-subtitle>
+                </v-list-item-content>
+            </v-list-item>
         </v-list>
     </template>
 
@@ -579,18 +579,18 @@
         <div>
             <div v-if="displayMessages.length > 0">
                 <v-list two-line>
-                    <v-list-tile v-for="(message, index) in displayMessages" avatar :key="index" @click="dialog.opened = true; dialog.message = message">
-                        <v-list-tile-avatar tile>
-                            <v-icon :color="message.type">{{ message.type }}</v-icon>
-                        </v-list-tile-avatar>
-                        <v-list-tile-content>
-                            <v-list-tile-title v-if="message.text">{{ $app.text(message.text) }}</v-list-tile-title>
-                            <v-list-tile-sub-title>
+                    <v-list-item v-for="(message, index) in displayMessages" avatar :key="index" @click="dialog.opened = true; dialog.message = message">
+                        <v-list-item-avatar tile>
+                            <v-icon :color="message.type">{{ message.icon }}</v-icon>
+                        </v-list-item-avatar>
+                        <v-list-item-content>
+                            <v-list-item-title v-if="message.text">{{ $app.text(message.text) }}</v-list-item-title>
+                            <v-list-item-subtitle>
                                 <span>{{ new Date(message.time).toLocaleTimeString() }}</span>
                                 <span v-if="message.desc">&mdash; {{ $app.text(message.desc) }}</span>
-                            </v-list-tile-sub-title>
-                        </v-list-tile-content>
-                    </v-list-tile>
+                            </v-list-item-subtitle>
+                        </v-list-item-content>
+                    </v-list-item>
                 </v-list>
                 <div v-if="totalPages > 1" class="text-xs-center mt-2">
                     <v-pagination :length="totalPages" v-model="page.number"></v-pagination>
@@ -621,7 +621,7 @@
                     </div>
                     <v-card-actions>
                         <span class="ml-3 grey--text">
-                            <v-icon small class="mr-1">access_time</v-icon>
+                            <v-icon small class="mr-1">mdi-clock-outline</v-icon>
                             {{ new Date(dialog.message.time).toLocaleString() }}
                         </span>
                         <v-spacer></v-spacer>
@@ -663,15 +663,15 @@
                 <v-flex xs12 sm6>
                     <p>{{ $t('language') }}</p>
                     <v-btn-toggle v-model="lang">
-                        <v-btn flat value="en">English</v-btn>
-                        <v-btn flat value="ua">Українська</v-btn>
+                        <v-btn text value="en">English</v-btn>
+                        <v-btn text value="ua">Українська</v-btn>
                     </v-btn-toggle>
                 </v-flex>
                 <v-flex xs12 sm6>
                     <p>{{ $t('theme') }}</p>
                     <v-btn-toggle v-model="theme">
-                        <v-btn flat value="light">{{ $t('theme-light') }}</v-btn>
-                        <v-btn flat value="dark">{{ $t('theme-dark') }}</v-btn>
+                        <v-btn text value="light">{{ $t('theme-light') }}</v-btn>
+                        <v-btn text value="dark">{{ $t('theme-dark') }}</v-btn>
                     </v-btn-toggle>
                 </v-flex>
                 <v-flex xs12 sm6 mt-3>
@@ -722,7 +722,7 @@
     <template id="app-toast">
         <v-snackbar v-if="message" v-model="opened" :color="message.type" :timeout="8000" multi-line vertical>
             {{ $app.text(message.text) }}
-            <v-btn flat @click.native="opened = false">{{ $t('close') }}</v-btn>
+            <v-btn text @click.native="opened = false">{{ $t('close') }}</v-btn>
         </v-snackbar>
     </template>
 
