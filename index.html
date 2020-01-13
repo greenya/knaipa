@@ -757,24 +757,22 @@
             <v-progress-circular indeterminate color="primary" class="ma-4"></v-progress-circular>
         </v-app>
         <v-app v-else :light="$store.state.pref.theme === 'light'" :dark="$store.state.pref.theme === 'dark'">
-            <v-toolbar app>
-                <v-toolbar-side-icon></v-toolbar-side-icon>
+            <v-app-bar app>
+                <v-app-bar-nav-icon></v-app-bar-nav-icon>
                 <v-toolbar-title>{{ $t('guild-title') }}</v-toolbar-title>
                 <v-spacer></v-spacer>
-                <v-toolbar-items>
-                    <v-btn v-for="(item, index) in nav" :key="index" :to="item.to" flat>
-                        <v-badge v-if="item.name === 'settings'" v-model="$store.getters[ 'unseen-app-messages-count' ] > 0" :left="$vuetify.breakpoint.smAndUp" overlap color="error">
-                            <span slot="badge">{{ $store.getters[ 'unseen-app-messages-count' ] }}</span>
-                            <v-icon :left="$vuetify.breakpoint.smAndUp">{{ item.icon }}</v-icon>
-                            <span class="hidden-xs-only">{{ $t(item.name) }}</span>
-                        </v-badge>
-                        <div v-else>
-                            <v-icon :left="$vuetify.breakpoint.smAndUp">{{ item.icon }}</v-icon>
-                            <span class="hidden-xs-only">{{ $t(item.name) }}</span>
-                        </div>
-                    </v-btn>
-                </v-toolbar-items>
-            </v-toolbar>
+                <v-btn v-for="(item, index) in nav" :key="index" :to="item.to" text>
+                    <v-badge v-if="item.name === 'settings'" v-model="$store.getters[ 'unseen-app-messages-count' ] > 0" :left="$vuetify.breakpoint.smAndUp" overlap color="error">
+                        <span slot="badge">{{ $store.getters[ 'unseen-app-messages-count' ] }}</span>
+                        <v-icon :left="$vuetify.breakpoint.smAndUp">{{ item.icon }}</v-icon>
+                        <span class="hidden-xs-only">{{ $t(item.name) }}</span>
+                    </v-badge>
+                    <div v-else>
+                        <v-icon :left="$vuetify.breakpoint.smAndUp">{{ item.icon }}</v-icon>
+                        <span class="hidden-xs-only">{{ $t(item.name) }}</span>
+                    </div>
+                </v-btn>
+            </v-app-bar>
             <v-content>
                 <router-view></router-view>
             </v-content>
@@ -792,9 +790,9 @@
                 loading: true,
                 error: null,
                 nav: [
-                    { to: { name: 'home' }, icon: 'home', name: 'home' },
-                    { to: { name: 'members' }, icon: 'people', name: 'members' },
-                    { to: { name: 'settings' }, icon: 'tune', name: 'settings' }
+                    { to: { name: 'home' }, icon: 'mdi-home', name: 'home' },
+                    { to: { name: 'members' }, icon: 'mdi-account-group', name: 'members' },
+                    { to: { name: 'settings' }, icon: 'mdi-tune', name: 'settings' }
                 ]
             }; },
             created: function () {
