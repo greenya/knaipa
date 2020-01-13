@@ -377,20 +377,20 @@
     <template id="app-member-list">
         <div>
             <v-list v-if="members.length > 0" two-line>
-                <v-list-tile v-for="(member, index) in members" avatar :key="index" @click="$emit('open', member)">
-                    <v-list-tile-avatar tile>
+                <v-list-item v-for="(member, index) in members" :key="index" @click="$emit('open', member)">
+                    <v-list-item-avatar tile>
                         <img :src="$app.avatar(member)">
-                    </v-list-tile-avatar>
-                    <v-list-tile-content>
-                        <v-list-tile-title>{{ member.name }}</v-list-tile-title>
-                        <v-list-tile-sub-title>
+                    </v-list-item-avatar>
+                    <v-list-item-content>
+                        <v-list-item-title>{{ member.name }}</v-list-item-title>
+                        <v-list-item-subtitle>
                             {{ member.level }}
-                            {{ $store.state.game.races[ member.race ].name }}
+                            {{ $store.state.game.races[ member.playable_race.id ].name }}
                             <span v-if="member.spec">{{ member.spec.name }}</span>
-                            {{ $store.state.game.classes[ member.class ].name }}
-                        </v-list-tile-sub-title>
-                    </v-list-tile-content>
-                </v-list-tile>
+                            {{ $store.state.game.classes[ member.playable_class.id ].name }}
+                        </v-list-item-subtitle>
+                    </v-list-item-content>
+                </v-list-item>
             </v-list>
             <div v-else class="text-xs-center my-4 grey--text">
                 {{ $t('list-is-empty') }}
@@ -411,10 +411,10 @@
         <v-container grid-list-xl>
             <v-layout wrap>
                 <v-flex xs12 sm6>
-                    <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange" class="pt-0"></v-select>
+                    <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange"></v-select>
                 </v-flex>
                 <v-flex xs12 sm6>
-                    <v-text-field :disabled="loading" flat clearable append-icon="search" v-model="searchText" class="pt-0"></v-text-field>
+                    <v-text-field :disabled="loading" flat clearable :append-icon="searchText ? false : 'mdi-magnify'" v-model="searchText"></v-text-field>
                 </v-flex>
                 <v-flex v-if="members" xs12>
                     <app-member-list :members="displayMembers" @open="memberOpen"></app-member-list>
@@ -472,9 +472,7 @@
 
                 var races = [];
                 Object.values(this.$store.state.game.races).forEach((item) => {
-                    if (item.side === 'alliance') {
-                        races.push({ text: item.name, value: 'race-' + item.id });
-                    }
+                    races.push({ text: item.name, value: 'race-' + item.id }); // !! TODO: show only guild faction races
                 });
                 this.filterItems.push(
                     { header: 'Races' },
@@ -486,11 +484,11 @@
                     this.$router.push({ name: 'member', params: { realm: member.realm, name: member.name } });
                 },
                 filterOnChange: function (value) {
-                    if (value.length === 0) {
+                    if (value.length == 0) {
                         value.push('all');
-                    } else if (value.length === 2 && value[ 0 ] === 'all') {
+                    } else if (value.length == 2 && value[ 0 ] == 'all') {
                         value.shift();
-                    } else if (value.length > 1 && value[ value.length - 1 ] === 'all') {
+                    } else if (value.length > 1 && value[ value.length - 1 ] == 'all') {
                         while (value.length > 1) {
                             value.shift();
                         }
@@ -514,15 +512,15 @@
 
                     for (var i = 0; i < this.filterValue.length; ++i) {
                         var [ type, key ] = this.filterValue[ i ].split('-');
-                        if (type === 'level') {
-                            if (key === 'max' && member.level < 110) {
+                        if (type == 'level') {
+                            if (key == 'max' && member.level < 120) {
                                 return false;
                             }
-                            if (key === 'low' && member.level === 110) {
+                            if (key == 'low' && member.level == 120) {
                                 return false;
                             }
                         }
-                        if (type === 'class') {
+                        if (type == 'class') {
                             if (okClass === undefined) {
                                 okClass = false;
                             }
@@ -530,7 +528,7 @@
                                 okClass = true;
                             }
                         }
-                        if (type === 'race') {
+                        if (type == 'race') {
                             if (okRace === undefined) {
                                 okRace = false;
                             }

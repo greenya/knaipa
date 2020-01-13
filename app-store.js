@@ -12,8 +12,8 @@ function appStore() {
                 secret: 'uyYIUab3AgYH8SxISh6CLf3bNifLdknr',
                 region: 'eu',
                 locale: 'en_GB',
-                realm: 'Terokkar',
-                guild: 'Knaipa Variativ LV'
+                realm: 'terokkar',
+                guild: 'knaipa-variativ-lv'
             },
             game: {
                 races: null,
@@ -248,7 +248,7 @@ function appStore() {
                     return state.guild.members;
                 }
                 return new Promise((resolve, reject) => {
-                    bnapi.wow.guild.members(state.bnet.apikey, state.bnet.locale, state.bnet.realm, state.bnet.guild).then((members) => {
+                    bnapi.wow.guild.roster(state.api.realm, state.api.guild).then((members) => {
                         var result = members.map(i => i.character);
                         commit('set-guild-members', result);
                         resolve(result);

@@ -81,6 +81,12 @@ bnapi.wow.playableClasses = function () {
     return bnapi.wow.get('playable-class/index', { namespace: 'static' }).then(data => data.classes);
 };
 
+bnapi.wow.guild = {};
+
+bnapi.wow.guild.roster = function (realm, guild) {
+    return bnapi.wow.get('guild/' + realm + '/' + guild + '/roster', { namespace: 'profile' }).then(data => data.members);
+};
+
 bnapi.wow.character = {};
 
 bnapi.wow.character.profile = function (apikey, locale, realm, characterName, fields = []) {
@@ -158,9 +164,3 @@ bnapi.wow.character.talents = function (apikey, locale, realm, characterName) {
 bnapi.wow.character.titles = function (apikey, locale, realm, characterName) {
     return bnapi.wow.character.profile(apikey, locale, realm, characterName, [ 'titles' ]).then(data => data.titles);
 }
-
-bnapi.wow.guild = {};
-
-bnapi.wow.guild.members = function (apikey, locale, realm, guild) {
-    return bnapi.wow.get('guild/' + realm + '/' + guild, { apikey, locale, fields: 'members' }).then(data => data.members);
-};
