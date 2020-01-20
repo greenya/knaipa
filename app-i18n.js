@@ -6,7 +6,7 @@ function appI18n() {
         'average-equipped-item-level':              { en: 'Average equipped item level', ua: 'Середній рівень вдягнених предметів' },
         'character-level':                          { en: 'Character level', ua: 'Рівень варʼята' },
         'close':                                    { en: 'Close', ua: 'Закрити' },
-        'guild-title':                              { en: 'Knaipa Variativ', ua: 'Кнайпа Варʼятів' },
+        'guild-title':                              { en: 'Knaipa Variativ LV', ua: 'Кнайпа Варʼятів' },
         'guild-location':                           { en: 'Ukrainian guild on EU Terokkar', ua: 'Українська гільдія на сервері EU Terokkar' },
         'home':                                     { en: 'Home', ua: 'Головна' },
         'language':                                 { en: 'Language', ua: 'Мова' },

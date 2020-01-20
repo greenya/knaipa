@@ -198,10 +198,10 @@ function appStore() {
                         bnapi.wow.playableClasses()
                     ]).then(([ playableRaces, playableClasses ]) => {
                         var gameRaces = {};
-                        playableRaces.forEach((item) => {
-                            gameRaces[item.id] = {
-                                id: item.id,
-                                name: item.name
+                        playableRaces.forEach(r => {
+                            gameRaces[r.id] = {
+                                id:     r.id,
+                                name:   r.name
                             };
                         });
 
@@ -229,10 +229,10 @@ function appStore() {
                         commit('set-game-races', gameRaces);
 
                         var gameClasses = {};
-                        playableClasses.forEach((item) => {
-                            gameClasses[item.id] = {
-                                id: item.id,
-                                name: item.name
+                        playableClasses.forEach(c => {
+                            gameClasses[c.id] = {
+                                id:     c.id,
+                                name:   c.name
                             };
                         });
 
@@ -258,10 +258,20 @@ function appStore() {
                     return state.guild.members;
                 }
                 return new Promise((resolve, reject) => {
-                    bnapi.wow.guild.roster(state.api.realm, state.api.guild).then((members) => {
-                        var result = members.map(i => i.character);
-                        commit('set-guild-members', result);
-                        resolve(result);
+                    bnapi.wow.guild.roster(state.api.realm, state.api.guild).then(roster => {
+                        var guildMembers = roster.map((m) => {
+                            return {
+                                id:     m.character.id,
+                                level:  m.character.level,
+                                name:   m.character.name,
+                                realm:  m.character.realm.slug,
+                                race:   m.character.playable_race.id,
+                                class:  m.character.playable_class.id,
+                                rank:   m.rank
+                            };
+                        });
+                        commit('set-guild-members', guildMembers);
+                        resolve(guildMembers);
                     }).catch((error) => {
                         commit('add-app-message', { error, text: { _: 'load-guild-members-failed' } });
                         reject(error);

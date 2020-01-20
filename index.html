@@ -379,15 +379,15 @@
             <v-list v-if="members.length > 0" two-line>
                 <v-list-item v-for="(member, index) in members" :key="index" @click="$emit('open', member)">
                     <v-list-item-avatar tile>
-                        <img :src="$app.avatar(member)">
+                        <img :src="$app.icon($store.state.game.classes[member.class])">
                     </v-list-item-avatar>
                     <v-list-item-content>
                         <v-list-item-title>{{ member.name }}</v-list-item-title>
                         <v-list-item-subtitle>
                             {{ member.level }}
-                            {{ $store.state.game.races[member.playable_race.id].name }}
+                            {{ $store.state.game.races[member.race].name }}
                             <span v-if="member.spec">{{ member.spec.name }}</span>
-                            {{ $store.state.game.classes[member.playable_class.id].name }}
+                            {{ $store.state.game.classes[member.class].name }}
                         </v-list-item-subtitle>
                     </v-list-item-content>
                 </v-list-item>
