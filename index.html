@@ -414,7 +414,7 @@
                     <v-select :loading="loading" :disabled="loading" v-model="filterValue" :items="filterItems" multiple :hint="filterHint" persistent-hint @change="filterOnChange"></v-select>
                 </v-flex>
                 <v-flex xs12 sm6>
-                    <v-text-field :disabled="loading" flat clearable :append-icon="searchText ? false : 'mdi-magnify'" v-model="searchText"></v-text-field>
+                    <v-text-field :disabled="loading" flat clearable :append-icon="searchText ? '' : 'mdi-magnify'" v-model="searchText"></v-text-field>
                 </v-flex>
                 <v-flex v-if="members" xs12>
                     <app-member-list :members="displayMembers" @open="memberOpen"></app-member-list>
