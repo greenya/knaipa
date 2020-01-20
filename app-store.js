@@ -172,22 +172,22 @@ function appStore() {
                 state.guild.members = payload;
             },
             'set-character-profile': function (state, payload) {
-                state.character.profile[ payload.name ] = payload.value;
+                state.character.profile[payload.name] = payload.value;
             },
             'set-character-talents': function (state, payload) {
-                state.character.talents[ payload.name ] = payload.value;
+                state.character.talents[payload.name] = payload.value;
             },
             'set-character-stats': function (state, payload) {
-                state.character.stats[ payload.name ] = payload.value;
+                state.character.stats[payload.name] = payload.value;
             },
             'set-character-items': function (state, payload) {
-                state.character.items[ payload.name ] = payload.value;
+                state.character.items[payload.name] = payload.value;
             },
             'set-character-titles': function (state, payload) {
-                state.character.titles[ payload.name ] = payload.value;
+                state.character.titles[payload.name] = payload.value;
             },
             'set-character-reputation': function (state, payload) {
-                state.character.reputation[ payload.name ] = payload.value;
+                state.character.reputation[payload.name] = payload.value;
             }
         }, // end of mutations
         actions: {
@@ -270,8 +270,8 @@ function appStore() {
             },
             'load-character-profile': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
-                if (state.character.profile[ key ]) {
-                    return state.character.profile[ key ];
+                if (state.character.profile[key]) {
+                    return state.character.profile[key];
                 }
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.profile(state.bnet.apikey, state.bnet.locale, realm, name).then((profile) => {
@@ -289,8 +289,8 @@ function appStore() {
             },
             'load-character-talents': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
-                if (state.character.talents[ key ]) {
-                    return state.character.talents[ key ];
+                if (state.character.talents[key]) {
+                    return state.character.talents[key];
                 }
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.talents(state.bnet.apikey, state.bnet.locale, realm, name).then((talents) => {
@@ -304,8 +304,8 @@ function appStore() {
             },
             'load-character-stats': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
-                if (state.character.stats[ key ]) {
-                    return state.character.stats[ key ];
+                if (state.character.stats[key]) {
+                    return state.character.stats[key];
                 }
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.stats(state.bnet.apikey, state.bnet.locale, realm, name).then((stats) => {
@@ -319,8 +319,8 @@ function appStore() {
             },
             'load-character-items': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
-                if (state.character.items[ key ]) {
-                    return state.character.items[ key ];
+                if (state.character.items[key]) {
+                    return state.character.items[key];
                 }
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.items(state.bnet.apikey, state.bnet.locale, realm, name).then((items) => {
@@ -334,13 +334,13 @@ function appStore() {
             },
             'load-character-titles': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
-                if (state.character.titles[ key ]) {
-                    return state.character.titles[ key ];
+                if (state.character.titles[key]) {
+                    return state.character.titles[key];
                 }
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.titles(state.bnet.apikey, state.bnet.locale, realm, name).then((titles) => {
                         var result = {};
-                        titles.forEach((item) => { result[ item.id ] = item; });
+                        titles.forEach((item) => { result[item.id] = item; });
                         commit('set-character-titles', { name: key, value: result });
                         resolve(result);
                     }).catch((error) => {
@@ -351,13 +351,13 @@ function appStore() {
             },
             'load-character-reputation': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
-                if (state.character.reputation[ key ]) {
-                    return state.character.reputation[ key ];
+                if (state.character.reputation[key]) {
+                    return state.character.reputation[key];
                 }
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.reputation(state.bnet.apikey, state.bnet.locale, realm, name).then((reputation) => {
                         var result = {};
-                        reputation.forEach((item) => { result[ item.id ] = item; });
+                        reputation.forEach((item) => { result[item.id] = item; });
                         commit('set-character-reputation', { name: key, value: result });
                         resolve(result);
                     }).catch((error) => {

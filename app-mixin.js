@@ -9,9 +9,9 @@ Vue.mixin({
         if (this.$options.vars) {
             this.$options.vars.forEach((variable) => {
                 var key = this.$options.name + '-' + variable;
-                var value = this.$store.state.app.vars[ key ];
+                var value = this.$store.state.app.vars[key];
                 if (value !== undefined) {
-                    this[ variable ] = value;
+                    this[variable] = value;
                 }
     
                 this.$watch(variable, function (value) {

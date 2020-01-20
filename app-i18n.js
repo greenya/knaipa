@@ -49,11 +49,11 @@ function appI18n() {
 
     var messages = {};
     Object.keys(localization).forEach((key) => {
-        Object.keys(localization[ key ]).forEach((locale) => {
-            if (!messages[ locale ]) {
-                messages[ locale ] = {};
+        Object.keys(localization[key]).forEach((locale) => {
+            if (!messages[locale]) {
+                messages[locale] = {};
             }
-            messages[ locale ][ key ] = localization[ key ][ locale ];
+            messages[locale][key] = localization[key][locale];
         });
     });
 

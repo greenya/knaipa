@@ -204,7 +204,7 @@
                 },
                 standing: function () {
                     var i = this.rep.max === 8400 || (this.rep.max === 0 && this.rep.value === 0 && this.rep.standing === 5) ? 1 : 0;
-                    return this.$store.state.game.standings[ i ][ this.rep.standing ];
+                    return this.$store.state.game.standings[i][this.rep.standing];
                 }
             }
         });
@@ -258,7 +258,7 @@
             },
             methods: {
                 displayReps: function (members) {
-                    var list = [].concat(members.any || [], members[ this.profile.faction ] || []);
+                    var list = [].concat(members.any || [], members[this.profile.faction] || []);
                     return Object.values(this.reputation)
                         .filter(i => list.indexOf(i.id) >= 0)
                         .sort((a, b) => a.name.localeCompare(b.name));
@@ -360,10 +360,10 @@
                         this.meta.push({ text: this.profile.level, hint: { _: 'character-level' }, icon: 'achievement_level_110' });
                     }
 
-                    var race = this.$store.state.game.races[ this.profile.race ];
-                    this.meta.push({ text: race.name, icon: race.icon[ this.profile.gender ] });
+                    var race = this.$store.state.game.races[this.profile.race];
+                    this.meta.push({ text: race.name, icon: race.icon[this.profile.gender] });
 
-                    var cls = this.$store.state.game.classes[ this.profile.class ];
+                    var cls = this.$store.state.game.classes[this.profile.class];
                     this.meta.push({ text: cls.name, icon: cls.icon });
 
                     if (this.activeSpec) {
@@ -385,9 +385,9 @@
                         <v-list-item-title>{{ member.name }}</v-list-item-title>
                         <v-list-item-subtitle>
                             {{ member.level }}
-                            {{ $store.state.game.races[ member.playable_race.id ].name }}
+                            {{ $store.state.game.races[member.playable_race.id].name }}
                             <span v-if="member.spec">{{ member.spec.name }}</span>
-                            {{ $store.state.game.classes[ member.playable_class.id ].name }}
+                            {{ $store.state.game.classes[member.playable_class.id].name }}
                         </v-list-item-subtitle>
                     </v-list-item-content>
                 </v-list-item>
@@ -486,9 +486,9 @@
                 filterOnChange: function (value) {
                     if (value.length == 0) {
                         value.push('all');
-                    } else if (value.length == 2 && value[ 0 ] == 'all') {
+                    } else if (value.length == 2 && value[0] == 'all') {
                         value.shift();
-                    } else if (value.length > 1 && value[ value.length - 1 ] == 'all') {
+                    } else if (value.length > 1 && value[value.length - 1] == 'all') {
                         while (value.length > 1) {
                             value.shift();
                         }
@@ -511,7 +511,7 @@
                     var okRace = undefined;
 
                     for (var i = 0; i < this.filterValue.length; ++i) {
-                        var [ type, key ] = this.filterValue[ i ].split('-');
+                        var [ type, key ] = this.filterValue[i].split('-');
                         if (type == 'level') {
                             if (key == 'max' && member.level < 120) {
                                 return false;
@@ -674,7 +674,7 @@
                 </v-flex>
                 <v-flex xs12 sm6 mt-3>
                     <div class="my-2 title">
-                        <v-badge :color="$store.getters[ 'unseen-app-messages-count' ] > 0 ? 'error' : 'grey lighten-1'">
+                        <v-badge :color="$store.getters['unseen-app-messages-count'] > 0 ? 'error' : 'grey lighten-1'">
                             <span slot="badge">{{ this.$store.state.app.messages.length }}</span>
                             <span class="pr-1">{{ $t('messages') }}</span>
                         </v-badge>
@@ -734,7 +734,7 @@
             created: function () {
                 this.$store.subscribe((mutation, state) => {
                     if (mutation.type === 'add-app-message' && !this.opened) {
-                        this.message = this.$store.state.app.messages[ this.$store.state.app.messages.length - 1 ];
+                        this.message = this.$store.state.app.messages[this.$store.state.app.messages.length - 1];
                         this.opened = true;
                     }
                 });
@@ -761,8 +761,8 @@
                 <v-toolbar-title>{{ $t('guild-title') }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-btn v-for="(item, index) in nav" :key="index" :to="item.to" text>
-                    <v-badge v-if="item.name === 'settings'" v-model="$store.getters[ 'unseen-app-messages-count' ] > 0" :left="$vuetify.breakpoint.smAndUp" overlap color="error">
-                        <span slot="badge">{{ $store.getters[ 'unseen-app-messages-count' ] }}</span>
+                    <v-badge v-if="item.name === 'settings'" v-model="$store.getters['unseen-app-messages-count'] > 0" :left="$vuetify.breakpoint.smAndUp" overlap color="error">
+                        <span slot="badge">{{ $store.getters['unseen-app-messages-count'] }}</span>
                         <v-icon :left="$vuetify.breakpoint.smAndUp">{{ item.icon }}</v-icon>
                         <span class="hidden-xs-only">{{ $t(item.name) }}</span>
                     </v-badge>

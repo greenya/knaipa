@@ -32,7 +32,7 @@ bnapi.get = function (url, params = {}) {
     return new Promise((resolve, reject) => {
         var q = [];
         for (var key in params) {
-            q.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[ key ]));
+            q.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
         }
         var x = new XMLHttpRequest();
         x.open('GET', url + (q.length ? '?' + q.join('&') : ''), true);
