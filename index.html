@@ -341,12 +341,12 @@
                 this.loading = true;
                 Promise.all([
                     this.$store.dispatch('load-character-profile', this.$route.params),
-                    this.$store.dispatch('load-character-talents', this.$route.params),
-                    this.$store.dispatch('load-character-items', this.$route.params)
-                ]).then(([ profile, talents, items ]) => {
+                    // this.$store.dispatch('load-character-talents', this.$route.params),
+                    // this.$store.dispatch('load-character-items', this.$route.params)
+                ]).then(([ profile /*, talents, items*/ ]) => {
                     this.profile = profile;
-                    this.talents = talents;
-                    this.items = items;
+                    // this.talents = talents;
+                    // this.items = items;
                     this.initMeta();
                     this.loading = false;
                 });
@@ -356,8 +356,8 @@
                     this.meta.push({ text: this.profile.achievementPoints, hint: { _: 'achievement-points' }, micon: 'star' });
                     this.meta.push({ text: this.items.averageItemLevelEquipped, hint: { _: 'average-equipped-item-level' }, micon: 'turned_in' });
 
-                    if (this.profile.level < 110) {
-                        this.meta.push({ text: this.profile.level, hint: { _: 'character-level' }, icon: 'achievement_level_110' });
+                    if (this.profile.level < 120) {
+                        this.meta.push({ text: this.profile.level, hint: { _: 'character-level' }, icon: 'achievement_level_120' });
                     }
 
                     var race = this.$store.state.game.races[this.profile.race];

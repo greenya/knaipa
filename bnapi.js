@@ -6,6 +6,19 @@ var bnapi = {
     token: false,
 };
 
+bnapi.error = function (x) {
+    var error = x.status + ' ' + x.statusText;
+    if (x.responseText.indexOf('{') === 0) {
+        var body = JSON.parse(x.responseText);
+        if (body.reason) {
+            error += ': ' + body.reason;
+        } else if (body.detail) {
+            error += ': ' + body.detail;
+        }
+    }
+    return new Error(error);
+};
+
 bnapi.auth = function (apiKey, apiSecret, region, locale) {
     return new Promise((resolve, reject) => {
         var x = new XMLHttpRequest();
@@ -28,7 +41,7 @@ bnapi.auth = function (apiKey, apiSecret, region, locale) {
     });
 }
 
-bnapi.get = function (url, params = {}) {
+bnapi.request = function (url, params = {}) {
     return new Promise((resolve, reject) => {
         var q = [];
         for (var key in params) {
@@ -49,50 +62,38 @@ bnapi.get = function (url, params = {}) {
     });
 }
 
-bnapi.error = function (x) {
-    var error = x.status + ' ' + x.statusText;
-    if (x.responseText.indexOf('{') === 0) {
-        var body = JSON.parse(x.responseText);
-        if (body.reason) {
-            error += ': ' + body.reason;
-        } else if (body.detail) {
-            error += ': ' + body.detail;
-        }
-    }
-    return new Error(error);
-};
-
-bnapi.wow = {};
-
-bnapi.wow.get = function (service, params = {}) {
+bnapi.get = function (service, params = {}) {
     if (params.namespace) {
         params.namespace += '-' + bnapi.region;
     }
     params.locale = bnapi.locale;
     params.access_token = bnapi.token;
-    return bnapi.get('https://' + bnapi.region + '.api.blizzard.com/data/wow/' + service, params);
+    return bnapi.request('https://' + bnapi.region + '.api.blizzard.com/' + service, params);
 };
 
+bnapi.wow = {};
+
 bnapi.wow.playableRaces = function () {
-    return bnapi.wow.get('playable-race/index', { namespace: 'static' }).then(data => data.races);
+    return bnapi.get('data/wow/playable-race/index', { namespace: 'static' }).then(data => data.races);
 };
 
 bnapi.wow.playableClasses = function () {
-    return bnapi.wow.get('playable-class/index', { namespace: 'static' }).then(data => data.classes);
+    return bnapi.get('data/wow/playable-class/index', { namespace: 'static' }).then(data => data.classes);
 };
 
 bnapi.wow.guild = {};
 
 bnapi.wow.guild.roster = function (realm, guild) {
-    return bnapi.wow.get('guild/' + realm + '/' + guild + '/roster', { namespace: 'profile' }).then(data => data.members);
+    return bnapi.get('data/wow/guild/' + realm + '/' + guild + '/roster', { namespace: 'profile' }).then(data => data.members);
 };
 
 bnapi.wow.character = {};
 
-bnapi.wow.character.profile = function (apikey, locale, realm, characterName, fields = []) {
-    return bnapi.wow.get('character/' + realm + '/' + characterName, { apikey, locale, fields: fields.join(',') });
+bnapi.wow.character.profile = function (realm, characterName) {
+    return bnapi.get('profile/wow/character/' + realm + '/' + characterName.toLowerCase(), { namespace: 'profile' });
 };
 
+/*
 bnapi.wow.character.achievements = function (apikey, locale, realm, characterName) {
     return bnapi.wow.character.profile(apikey, locale, realm, characterName, [ 'achievements' ]).then(data => data.achievements);
 }
@@ -164,3 +165,4 @@ bnapi.wow.character.talents = function (apikey, locale, realm, characterName) {
 bnapi.wow.character.titles = function (apikey, locale, realm, characterName) {
     return bnapi.wow.character.profile(apikey, locale, realm, characterName, [ 'titles' ]).then(data => data.titles);
 }
+*/

@@ -284,9 +284,27 @@ function appStore() {
                     return state.character.profile[key];
                 }
                 return new Promise((resolve, reject) => {
-                    bnapi.wow.character.profile(state.bnet.apikey, state.bnet.locale, realm, name).then((profile) => {
-                        commit('set-character-profile', { name: key, value: profile });
-                        resolve(profile);
+                    bnapi.wow.character.profile(realm, name).then((profile) => {
+                        var result = {
+                            id:                     profile.id,
+                            name:                   profile.name,
+                            gender:                 profile.gender.type,
+                            faction:                profile.faction.type,
+                            race:                   profile.race.id,
+                            class:                  profile.character_class.id,
+                            active_spec:            profile.active_spec.id,
+                            realm:                  profile.realm.slug,
+                            guild:                  profile.guild.name,
+                            level:                  profile.level,
+                            experience:             profile.experience,
+                            achievement_points:     profile.achievement_points,
+                            last_login_timestamp:   profile.last_login_timestamp,
+                            average_item_level:     profile.average_item_level,
+                            equipped_item_level:    profile.equipped_item_level,
+                            active_title:           profile.active_title.display_string
+                        };
+                        commit('set-character-profile', { name: key, value: result });
+                        resolve(result);
                     }).catch((error) => {
                         commit('add-app-message', {
                             error,
@@ -297,7 +315,7 @@ function appStore() {
                     });
                 });
             },
-            'load-character-talents': function ({ state, commit }, { realm, name }) {
+            /*'load-character-talents': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
                 if (state.character.talents[key]) {
                     return state.character.talents[key];
@@ -375,7 +393,7 @@ function appStore() {
                         reject(error);
                     });
                 });
-            }
+            }*/
         } // end of actions
     });
 }
