@@ -151,6 +151,7 @@
             props: {
                 value: { type: Number, required: true },
                 height: { type: Number, default: 20 },
+                top: { type: String, default: '75%' },
                 color: { type: String, default: 'grey' },
                 text: { type: String, default: '' },
                 textClass: { type: String, default: 'body-2' }
@@ -158,13 +159,12 @@
             data: function () { return {
                 slotStyle: {
                     position: 'absolute',
-                    marginTop: '-' + this.height + 'px',
-                    marginLeft: '-50%',
-                    lineHeight: this.height + 'px',
-                    width: '100%',
+                    top: this.top,
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
                     zIndex: 1,
                     color: 'white',
-                    textShadow: '0 0 3px grey'
+                    textShadow: '1px 1px 2px #000'
                 }
             }; }
         });
@@ -182,7 +182,7 @@
             <v-layout class="hidden-xs-only" style="line-height: 26px;">
                 <v-flex xs3 text-xs-right>{{ rep.name }}</v-flex>
                 <v-flex xs6>
-                    <app-progress-linear :value="progressPercent" :text="progressText" :color="standing.color" :height="26"></app-progress-linear>
+                    <app-progress-linear :value="progressPercent" :text="progressText" :color="standing.color" :height="26" :top="'50%'"></app-progress-linear>
                 </v-flex>
                 <v-flex xs3>{{ $t(standing.text) }}</v-flex>
             </v-layout>
@@ -203,8 +203,8 @@
                     return this.rep.max === 0 && this.rep.value === 0 ? '' : this.rep.value + ' / ' + this.rep.max;
                 },
                 standing: function () {
-                    var i = this.rep.max === 8400 || (this.rep.max === 0 && this.rep.value === 0 && this.rep.standing === 5) ? 1 : 0;
-                    return this.$store.state.game.standings[i][this.rep.standing];
+                    var i = this.rep.max === 8400 || (this.rep.max === 0 && this.rep.value === 0 && this.rep.tier === 5) ? 1 : 0;
+                    return this.$store.state.game.standings[i][this.rep.tier];
                 }
             }
         });

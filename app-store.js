@@ -19,7 +19,7 @@ function appStore() {
                 races: null,
                 classes: null,
                 specs: null,
-                factions: [
+                factions: [ // TODO: add BFA factions
                     {
                         title: 'Legion',
                         members: { any: [ 1828, 1859, 1883, 1888, 1894, 1900, 1947, 1948, 1975, 1989, 2018, 2045, 2135, 2165, 2170 ] },
@@ -105,6 +105,7 @@ function appStore() {
             character: {
                 profile: {},
                 media: {},
+                reputation: {},
             },
             pref: {
                 lang: localStorage.lang === 'ua' ? 'ua' : 'en',
@@ -176,6 +177,9 @@ function appStore() {
             },
             'set-character-media': function (state, payload) {
                 state.character.media[payload.name] = payload.value;
+            },
+            'set-character-reputation': function (state, payload) {
+                state.character.reputation[payload.name] = payload.value;
             }
         }, // end of mutations
         actions: {
@@ -338,7 +342,7 @@ function appStore() {
                             id:                 profile.id,
                             name:               profile.name,
                             gender:             profile.gender.type == 'MALE' ? 0 : 1,
-                            faction:            profile.faction.type,
+                            faction:            profile.faction.type == 'ALLIANCE' ? 0 : 1,
                             race:               profile.race.id,
                             class:              profile.character_class.id,
                             active_spec:        profile.active_spec.id,
@@ -380,6 +384,33 @@ function appStore() {
                         resolve(result);
                     }).catch((error) => {
                         commit('add-app-message', { error, text: 'Failed to load media for ' + name + ' from ' + realm });
+                        reject(error);
+                    });
+                });
+            },
+            'load-character-reputation': function ({ state, commit }, { realm, name }) {
+                var key = name + '-' + realm;
+                if (state.character.reputation[key]) {
+                    return state.character.reputation[key];
+                }
+                return new Promise((resolve, reject) => {
+                    bnapi.wow.character.reputation(realm, name).then((reputation) => {
+                        var result = {};
+                        reputation.forEach(r => {
+                            result[r.faction.id] = {
+                                id:         r.faction.id,
+                                name:       r.faction.name,
+                                raw:        r.standing.raw,
+                                value:      r.standing.value,
+                                max:        r.standing.max,
+                                tier:       r.standing.tier,
+                                tier_name:  r.standing.name
+                            };
+                        });
+                        commit('set-character-reputation', { name: key, value: result });
+                        resolve(result);
+                    }).catch((error) => {
+                        commit('add-app-message', { error, text: 'Failed to load reputation for ' + name + ' from ' + realm });
                         reject(error);
                     });
                 });

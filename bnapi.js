@@ -94,9 +94,16 @@ bnapi.wow.guild.roster = function (realm, guild) {
 bnapi.wow.character = {};
 
 bnapi.wow.character.profile = function (realm, characterName) {
-    return bnapi.get('profile/wow/character/' + realm + '/' + characterName.toLowerCase(), { namespace: 'profile' });
+    var char = characterName.toLowerCase();
+    return bnapi.get('profile/wow/character/' + realm + '/' + char, { namespace: 'profile' });
 };
 
 bnapi.wow.character.media = function (realm, characterName) {
-    return bnapi.get('profile/wow/character/' + realm + '/' + characterName.toLowerCase() + '/character-media', { namespace: 'profile' });
+    var char = characterName.toLowerCase();
+    return bnapi.get('profile/wow/character/' + realm + '/' + char + '/character-media', { namespace: 'profile' });
+};
+
+bnapi.wow.character.reputation = function (realm, characterName) {
+    var char = characterName.toLowerCase();
+    return bnapi.get('profile/wow/character/' + realm + '/' + char + '/reputations', { namespace: 'profile' }).then(data => data.reputations);
 };
