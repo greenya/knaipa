@@ -197,10 +197,10 @@
             },
             computed: {
                 progressPercent: function () {
-                    return this.rep.max === 0 && this.rep.value === 0 ? 100 : Math.round(this.rep.value * 100 / this.rep.max);
+                    return this.rep.max === 0 ? 100 : Math.round(this.rep.value * 100 / this.rep.max);
                 },
                 progressText: function () {
-                    return this.rep.max === 0 && this.rep.value === 0 ? '' : this.rep.value + ' / ' + this.rep.max;
+                    return this.rep.max === 0 ? '' : this.rep.value + ' / ' + this.rep.max;
                 },
                 standing: function () {
                     var i = this.rep.max === 8400 || (this.rep.max === 0 && this.rep.value === 0 && this.rep.tier === 5) ? 1 : 0;
