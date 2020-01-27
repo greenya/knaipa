@@ -347,7 +347,7 @@ function appStore() {
                             class:              profile.character_class.id,
                             active_spec:        profile.active_spec.id,
                             realm:              profile.realm.slug,
-                            guild:              profile.guild.name,
+                            guild:              profile.guild ? profile.guild.name : false,
                             level:              profile.level,
                             experience:         profile.experience,
                             achievement_points: profile.achievement_points,
