@@ -290,9 +290,9 @@
                             </v-chip>
                         </div>
                         <div>
-                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" :title="$app.text(item.hint)" small>
-                                <v-avatar v-if="item.icon"><img :src="$app.icon({ icon: item.icon })"></v-avatar>
-                                <v-avatar v-if="item.micon"><v-icon>{{ item.micon }}</v-icon></v-avatar>
+                            <v-chip v-for="(item, index) in meta.filter(i => $vuetify.breakpoint.xsOnly || !i.micon)" :key="index" :title="$app.text(item.hint)" color="transparent">
+                                <v-avatar v-if="item.icon" left><img :src="$app.icon({ icon: item.icon })"></v-avatar>
+                                <v-avatar v-if="item.micon" left><v-icon>{{ item.micon }}</v-icon></v-avatar>
                                 {{ item.text }}
                             </v-chip>
                         </div>
@@ -301,7 +301,7 @@
                 </v-layout>
                 <v-layout>
                     <v-flex xs12>
-                        <v-tabs fixed-tabs color="transparent">
+                        <v-tabs fixed-tabs>
                             <v-tab v-for="(item, index) in nav" :key="index" :to="item.to">{{ $t(item.name) }}</v-tab>
                         </v-tabs>
                     </v-flex>
