@@ -104,11 +104,12 @@ function appStore() {
             },
             character: {
                 profile: {},
-                talents: {},
-                stats: {},
-                items: {},
-                titles: {},
-                reputation: {}
+                media: {},
+                // talents: {},
+                // stats: {},
+                // items: {},
+                // titles: {},
+                // reputation: {}
             },
             pref: {
                 lang: localStorage.lang === 'ua' ? 'ua' : 'en',
@@ -178,21 +179,24 @@ function appStore() {
             'set-character-profile': function (state, payload) {
                 state.character.profile[payload.name] = payload.value;
             },
-            'set-character-talents': function (state, payload) {
-                state.character.talents[payload.name] = payload.value;
+            'set-character-media': function (state, payload) {
+                state.character.media[payload.name] = payload.value;
             },
-            'set-character-stats': function (state, payload) {
-                state.character.stats[payload.name] = payload.value;
-            },
-            'set-character-items': function (state, payload) {
-                state.character.items[payload.name] = payload.value;
-            },
-            'set-character-titles': function (state, payload) {
-                state.character.titles[payload.name] = payload.value;
-            },
-            'set-character-reputation': function (state, payload) {
-                state.character.reputation[payload.name] = payload.value;
-            }
+            // 'set-character-talents': function (state, payload) {
+            //     state.character.talents[payload.name] = payload.value;
+            // },
+            // 'set-character-stats': function (state, payload) {
+            //     state.character.stats[payload.name] = payload.value;
+            // },
+            // 'set-character-items': function (state, payload) {
+            //     state.character.items[payload.name] = payload.value;
+            // },
+            // 'set-character-titles': function (state, payload) {
+            //     state.character.titles[payload.name] = payload.value;
+            // },
+            // 'set-character-reputation': function (state, payload) {
+            //     state.character.reputation[payload.name] = payload.value;
+            // }
         }, // end of mutations
         actions: {
             'load-game-data': function ({ state, commit }) {
@@ -207,59 +211,26 @@ function appStore() {
                             gameRaces[r.id] = {
                                 id:     r.id,
                                 name:   r.name,
-                                icon_m: 'inv_misc_questionmark',
-                                icon_f: 'inv_misc_questionmark'
+                                icon:   [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]
                             };
                         });
 
-                        gameRaces[1].icon_m = 'race_human_male';
-                        gameRaces[1].icon_f = 'race_human_female';
-
-                        gameRaces[2].icon_m = 'race_orc_male';
-                        gameRaces[2].icon_f = 'race_orc_female';
-
-                        gameRaces[3].icon_m = 'race_dwarf_male';
-                        gameRaces[3].icon_f = 'race_dwarf_female';
-
-                        gameRaces[4].icon_m = 'race_night-elf_male';
-                        gameRaces[4].icon_f = 'race_night-elf_female';
-
-                        gameRaces[5].icon_m = 'race_undead_male';
-                        gameRaces[5].icon_f = 'race_undead_female';
-
-                        gameRaces[6].icon_m = 'race_tauren_male';
-                        gameRaces[6].icon_f = 'race_tauren_female';
-
-                        gameRaces[7].icon_m = 'race_gnome_male';
-                        gameRaces[7].icon_f = 'race_gnome_female';
-
-                        gameRaces[8].icon_m = 'race_troll_male';
-                        gameRaces[8].icon_f = 'race_troll_female';
-
-                        gameRaces[9].icon_m = 'race_goblin_male';
-                        gameRaces[9].icon_f = 'race_goblin_female';
-
-                        gameRaces[10].icon_m = 'race_blood-elf_male';
-                        gameRaces[10].icon_f = 'race_blood-elf_female';
-
-                        gameRaces[11].icon_m = 'race_draenei_male';
-                        gameRaces[11].icon_f = 'race_draenei_female';
-
-                        gameRaces[22].icon_m = 'race_worgen_male';
-                        gameRaces[22].icon_f = 'race_worgen_female';
-
-                        gameRaces[24].icon_m = 'achievement_guild_classypanda'; // Pandaren (Neutral)
-                        gameRaces[24].icon_f = 'achievement_character_pandaren_female';
-
-                        gameRaces[25].icon_m = 'achievement_guild_classypanda'; // Pandaren (Alliance)
-                        gameRaces[25].icon_f = 'achievement_character_pandaren_female';
-
-                        gameRaces[26].icon_m = 'achievement_guild_classypanda'; // Pandaren (Horde)
-                        gameRaces[26].icon_f = 'achievement_character_pandaren_female';
-
-                        gameRaces[27].icon_m = 'inv_nightbornemale';
-                        gameRaces[27].icon_f = 'inv_nightbornefemale';
-
+                        gameRaces[1].icon = [ 'race_human_male', 'race_human_female' ];
+                        gameRaces[2].icon = [ 'race_orc_male', 'race_orc_female' ];
+                        gameRaces[3].icon = [ 'race_dwarf_male', 'race_dwarf_female' ];
+                        gameRaces[4].icon = [ 'race_night-elf_male', 'race_night-elf_female' ];
+                        gameRaces[5].icon = [ 'race_undead_male', 'race_undead_female' ];
+                        gameRaces[6].icon = [ 'race_tauren_male', 'race_tauren_female' ];
+                        gameRaces[7].icon = [ 'race_gnome_male', 'race_gnome_female' ];
+                        gameRaces[8].icon = [ 'race_troll_male', 'race_troll_female' ];
+                        gameRaces[9].icon = [ 'race_goblin_male', 'race_goblin_female' ];
+                        gameRaces[10].icon = [ 'race_blood-elf_male', 'race_blood-elf_female' ];
+                        gameRaces[11].icon = [ 'race_draenei_male', 'race_draenei_female' ];
+                        gameRaces[22].icon = [ 'race_worgen_male', 'race_worgen_female' ];
+                        gameRaces[24].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // Pandaren (Neutral)
+                        gameRaces[25].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // Pandaren (Alliance)
+                        gameRaces[26].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // Pandaren (Horde)
+                        gameRaces[27].icon = [ 'inv_nightbornemale', 'inv_nightbornefemale' ];
                         // gameRaces[28].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Highmountain Tauren
                         // gameRaces[29].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Void Elf
                         // gameRaces[30].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Lightforged Draenei
@@ -323,8 +294,11 @@ function appStore() {
                         // gameSpecs[251].icon = ''; // frost
                         // gameSpecs[252].icon = ''; // unholy
                         gameSpecs[253].icon = 'ability_hunter_bestialdiscipline'; // bm
+                        gameSpecs[253].role = 'DAMAGE';
                         gameSpecs[254].icon = 'ability_hunter_focusedaim'; // mm
+                        gameSpecs[254].role = 'DAMAGE';
                         gameSpecs[255].icon = 'ability_hunter_camouflage'; // surv
+                        gameSpecs[255].role = 'DAMAGE';
                         // gameSpecs[256].icon = ''; // disc
                         // gameSpecs[257].icon = ''; // holy
                         // gameSpecs[258].icon = ''; // shadow
@@ -383,7 +357,7 @@ function appStore() {
                         var result = {
                             id:                 profile.id,
                             name:               profile.name,
-                            gender:             profile.gender.type,
+                            gender:             profile.gender.type == 'MALE' ? 0 : 1,
                             faction:            profile.faction.type,
                             race:               profile.race.id,
                             class:              profile.character_class.id,
@@ -396,7 +370,7 @@ function appStore() {
                             last_login:         profile.last_login_timestamp,
                             average_ilvl:       profile.average_item_level,
                             equipped_ilvl:      profile.equipped_item_level,
-                            active_title:       profile.active_title.display_string
+                            active_title:       profile.active_title ? profile.active_title.display_string : false
                         };
                         commit('set-character-profile', { name: key, value: result });
                         resolve(result);
@@ -410,22 +384,27 @@ function appStore() {
                     });
                 });
             },
-            /*'load-character-talents': function ({ state, commit }, { realm, name }) {
+            'load-character-media': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
-                if (state.character.talents[key]) {
-                    return state.character.talents[key];
+                if (state.character.media[key]) {
+                    return state.character.media[key];
                 }
                 return new Promise((resolve, reject) => {
-                    bnapi.wow.character.talents(state.bnet.apikey, state.bnet.locale, realm, name).then((talents) => {
-                        commit('set-character-talents', { name: key, value: talents });
-                        resolve(talents);
+                    bnapi.wow.character.media(realm, name).then((media) => {
+                        var result = {
+                            avatar: media.avatar_url,
+                            bust:   media.bust_url,
+                            render: media.render_url
+                        };
+                        commit('set-character-media', { name: key, value: result });
+                        resolve(result);
                     }).catch((error) => {
-                        commit('add-app-message', { error, text: 'Failed to load talents for ' + name + ' from ' + realm });
+                        commit('add-app-message', { error, text: 'Failed to load media for ' + name + ' from ' + realm });
                         reject(error);
                     });
                 });
-            },
-            'load-character-stats': function ({ state, commit }, { realm, name }) {
+            }
+            /*'load-character-stats': function ({ state, commit }, { realm, name }) {
                 var key = name + '-' + realm;
                 if (state.character.stats[key]) {
                     return state.character.stats[key];
@@ -436,21 +415,6 @@ function appStore() {
                         resolve(stats);
                     }).catch((error) => {
                         commit('add-app-message', { error, text: 'Failed to load stats for ' + name + ' from ' + realm });
-                        reject(error);
-                    });
-                });
-            },
-            'load-character-items': function ({ state, commit }, { realm, name }) {
-                var key = name + '-' + realm;
-                if (state.character.items[key]) {
-                    return state.character.items[key];
-                }
-                return new Promise((resolve, reject) => {
-                    bnapi.wow.character.items(state.bnet.apikey, state.bnet.locale, realm, name).then((items) => {
-                        commit('set-character-items', { name: key, value: items });
-                        resolve(items);
-                    }).catch((error) => {
-                        commit('add-app-message', { error, text: 'Failed to load items for ' + name + ' from ' + realm });
                         reject(error);
                     });
                 });

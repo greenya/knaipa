@@ -274,14 +274,17 @@
                 <v-layout>
                     <v-spacer></v-spacer>
                     <v-flex style="flex: none;">
-                        <v-avatar tile size="84" class="elevation-10">
-                            <img :src="$app.avatar(profile)">
+                        <v-avatar tile size="84" class="hidden-sm-and-up elevation-10">
+                            <img :src="media.avatar">
+                        </v-avatar>
+                        <v-avatar tile width="230" height="116" class="hidden-xs-only elevation-10">
+                            <img :src="media.bust">
                         </v-avatar>
                     </v-flex>
                     <v-flex>
-                        <div class="display-1 ml-1 mb-2">{{ profile.name }}</div>
+                        <div class="display-1 ml-1 mb-3">{{ profile.name }}</div>
                         <div class="hidden-xs-only text-xs-right" style="float:right; margin-top: -48px; max-width: 140px;">
-                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" :title="$app.text(item.hint)" color="transparent" text-color="secondary">
+                            <v-chip v-for="(item, index) in meta.filter(i => i.micon)" :key="index" :title="$app.text(item.hint)" color="transparent">
                                 <span class="headline">{{ item.text }}</span>
                                 <v-icon right>{{ item.micon }}</v-icon>
                             </v-chip>
@@ -328,36 +331,37 @@
                     { to: { name: 'member-statistics' }, name: 'Statistics' }*/
                 ],
                 profile: null,
-                talents: null,
-                items: null,
+                media: null,
                 meta: [],
             }; },
             computed: {
                 activeSpec: function () {
-                    return (this.talents.find(i => i.selected) || {}).spec;
+                    if (this.profile && this.profile.active_spec) {
+                        return this.$store.state.game.specs[this.profile.active_spec];
+                    } else {
+                        return false;
+                    }
                 }
             },
             created: function () {
                 this.loading = true;
                 Promise.all([
                     this.$store.dispatch('load-character-profile', this.$route.params),
-                    // this.$store.dispatch('load-character-talents', this.$route.params),
-                    // this.$store.dispatch('load-character-items', this.$route.params)
-                ]).then(([ profile /*, talents, items*/ ]) => {
+                    this.$store.dispatch('load-character-media', this.$route.params),
+                ]).then(([ profile, media ]) => {
                     this.profile = profile;
-                    // this.talents = talents;
-                    // this.items = items;
+                    this.media = media;
                     this.initMeta();
                     this.loading = false;
                 });
             },
             methods: {
                 initMeta: function () {
-                    this.meta.push({ text: this.profile.achievementPoints, hint: { _: 'achievement-points' }, micon: 'star' });
-                    this.meta.push({ text: this.items.averageItemLevelEquipped, hint: { _: 'average-equipped-item-level' }, micon: 'turned_in' });
+                    this.meta.push({ text: this.profile.achievement_points, hint: { _: 'achievement-points' }, micon: 'mdi-star' });
+                    this.meta.push({ text: this.profile.average_ilvl, hint: { _: 'average-equipped-item-level' }, micon: 'mdi-hanger' });
 
                     if (this.profile.level < 120) {
-                        this.meta.push({ text: this.profile.level, hint: { _: 'character-level' }, icon: 'achievement_level_120' });
+                        this.meta.push({ text: this.profile.level, hint: { _: 'character-level' }, icon: 'inv_level120' });
                     }
 
                     var race = this.$store.state.game.races[this.profile.race];
@@ -367,7 +371,7 @@
                     this.meta.push({ text: cls.name, icon: cls.icon });
 
                     if (this.activeSpec) {
-                        this.meta.push({ text: this.activeSpec.name, hint: this.activeSpec.role, icon: this.activeSpec.icon });
+                        this.meta.push({ text: this.activeSpec.name, hint: { _: 'role-' + this.activeSpec.role }, icon: this.activeSpec.icon });
                     }
                 }
             }
