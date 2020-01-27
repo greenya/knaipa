@@ -81,6 +81,10 @@ bnapi.wow.playableClasses = function () {
     return bnapi.get('data/wow/playable-class/index', { namespace: 'static' }).then(data => data.classes);
 };
 
+bnapi.wow.playableSpecializations = function () {
+    return bnapi.get('data/wow/playable-specialization/index', { namespace: 'static' }).then(data => data.character_specializations);
+};
+
 bnapi.wow.guild = {};
 
 bnapi.wow.guild.roster = function (realm, guild) {

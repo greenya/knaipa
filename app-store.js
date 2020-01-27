@@ -18,6 +18,7 @@ function appStore() {
             game: {
                 races: null,
                 classes: null,
+                specs: null,
                 factions: [
                     {
                         title: 'Legion',
@@ -168,6 +169,9 @@ function appStore() {
             'set-game-classes': function (state, payload) {
                 state.game.classes = payload;
             },
+            'set-game-specs': function (state, payload) {
+                state.game.specs = payload;
+            },
             'set-guild-members': function (state, payload) {
                 state.guild.members = payload;
             },
@@ -195,36 +199,77 @@ function appStore() {
                 return bnapi.auth(state.api.key, state.api.secret, state.api.region, state.api.locale).then(() => {
                     return Promise.all([
                         bnapi.wow.playableRaces(),
-                        bnapi.wow.playableClasses()
-                    ]).then(([ playableRaces, playableClasses ]) => {
+                        bnapi.wow.playableClasses(),
+                        bnapi.wow.playableSpecializations()
+                    ]).then(([ playableRaces, playableClasses, playableSpecializations ]) => {
                         var gameRaces = {};
                         playableRaces.forEach(r => {
                             gameRaces[r.id] = {
                                 id:     r.id,
-                                name:   r.name
+                                name:   r.name,
+                                icon_m: 'inv_misc_questionmark',
+                                icon_f: 'inv_misc_questionmark'
                             };
                         });
 
-                        gameRaces[1].icon = [ 'race_human_male', 'race_human_female' ];
-                        gameRaces[2].icon = [ 'race_orc_male', 'race_orc_female' ];
-                        gameRaces[3].icon = [ 'race_dwarf_male', 'race_dwarf_female' ];
-                        gameRaces[4].icon = [ 'race_night-elf_male', 'race_night-elf_female' ];
-                        gameRaces[5].icon = [ 'race_undead_male', 'race_undead_female' ];
-                        gameRaces[6].icon = [ 'race_tauren_male', 'race_tauren_female' ];
-                        gameRaces[7].icon = [ 'race_gnome_male', 'race_gnome_female' ];
-                        gameRaces[8].icon = [ 'race_troll_male', 'race_troll_female' ];
-                        gameRaces[9].icon = [ 'race_goblin_male', 'race_goblin_female' ];
-                        gameRaces[10].icon = [ 'race_blood-elf_male', 'race_blood-elf_female' ];
-                        gameRaces[11].icon = [ 'race_draenei_male', 'race_draenei_female' ];
-                        gameRaces[22].icon = [ 'race_worgen_male', 'race_worgen_female' ];
-                        gameRaces[24].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // neutral pandaren
-                        gameRaces[25].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // alliance pandaren
-                        gameRaces[26].icon = [ 'achievement_guild_classypanda', 'achievement_character_pandaren_female' ]; // horde pandaren
-                        gameRaces[27].icon = [ 'inv_nightbornemale', 'inv_nightbornefemale' ];
-                        gameRaces[28].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ];
-                        gameRaces[29].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ];
-                        gameRaces[30].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ];
-                        // TODO: add BFA races
+                        gameRaces[1].icon_m = 'race_human_male';
+                        gameRaces[1].icon_f = 'race_human_female';
+
+                        gameRaces[2].icon_m = 'race_orc_male';
+                        gameRaces[2].icon_f = 'race_orc_female';
+
+                        gameRaces[3].icon_m = 'race_dwarf_male';
+                        gameRaces[3].icon_f = 'race_dwarf_female';
+
+                        gameRaces[4].icon_m = 'race_night-elf_male';
+                        gameRaces[4].icon_f = 'race_night-elf_female';
+
+                        gameRaces[5].icon_m = 'race_undead_male';
+                        gameRaces[5].icon_f = 'race_undead_female';
+
+                        gameRaces[6].icon_m = 'race_tauren_male';
+                        gameRaces[6].icon_f = 'race_tauren_female';
+
+                        gameRaces[7].icon_m = 'race_gnome_male';
+                        gameRaces[7].icon_f = 'race_gnome_female';
+
+                        gameRaces[8].icon_m = 'race_troll_male';
+                        gameRaces[8].icon_f = 'race_troll_female';
+
+                        gameRaces[9].icon_m = 'race_goblin_male';
+                        gameRaces[9].icon_f = 'race_goblin_female';
+
+                        gameRaces[10].icon_m = 'race_blood-elf_male';
+                        gameRaces[10].icon_f = 'race_blood-elf_female';
+
+                        gameRaces[11].icon_m = 'race_draenei_male';
+                        gameRaces[11].icon_f = 'race_draenei_female';
+
+                        gameRaces[22].icon_m = 'race_worgen_male';
+                        gameRaces[22].icon_f = 'race_worgen_female';
+
+                        gameRaces[24].icon_m = 'achievement_guild_classypanda'; // Pandaren (Neutral)
+                        gameRaces[24].icon_f = 'achievement_character_pandaren_female';
+
+                        gameRaces[25].icon_m = 'achievement_guild_classypanda'; // Pandaren (Alliance)
+                        gameRaces[25].icon_f = 'achievement_character_pandaren_female';
+
+                        gameRaces[26].icon_m = 'achievement_guild_classypanda'; // Pandaren (Horde)
+                        gameRaces[26].icon_f = 'achievement_character_pandaren_female';
+
+                        gameRaces[27].icon_m = 'inv_nightbornemale';
+                        gameRaces[27].icon_f = 'inv_nightbornefemale';
+
+                        // gameRaces[28].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Highmountain Tauren
+                        // gameRaces[29].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Void Elf
+                        // gameRaces[30].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Lightforged Draenei
+                        // gameRaces[31].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Zandalari Troll
+                        // gameRaces[32].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Kul Tiran
+                        // gameRaces[34].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Dark Iron Dwarf
+                        // gameRaces[35].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Vulpera
+                        // gameRaces[36].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Mag'har Orc
+                        // gameRaces[37].icon = [ 'inv_misc_questionmark', 'inv_misc_questionmark' ]; // Mechagnome
+                        // TODO: add icons for all races
 
                         commit('set-game-races', gameRaces);
 
@@ -232,7 +277,8 @@ function appStore() {
                         playableClasses.forEach(c => {
                             gameClasses[c.id] = {
                                 id:     c.id,
-                                name:   c.name
+                                name:   c.name,
+                                icon:   'inv_misc_questionmark'
                             };
                         });
 
@@ -250,6 +296,55 @@ function appStore() {
                         gameClasses[12].icon = 'class_demon-hunter';
 
                         commit('set-game-classes', gameClasses);
+
+                        var gameSpecs = {};
+                        playableSpecializations.forEach(s => {
+                            gameSpecs[s.id] = {
+                                id:     s.id,
+                                name:   s.name,
+                                icon:   'inv_misc_questionmark'
+                            };
+                        });
+
+                        // gameSpecs[62].icon = ''; // arcane
+                        // gameSpecs[63].icon = ''; // fire
+                        // gameSpecs[64].icon = ''; // frost
+                        // gameSpecs[65].icon = ''; // holy
+                        // gameSpecs[66].icon = ''; // prot
+                        // gameSpecs[70].icon = ''; // retri
+                        // gameSpecs[71].icon = ''; // arms
+                        // gameSpecs[72].icon = ''; // fury
+                        // gameSpecs[73].icon = ''; // prot
+                        // gameSpecs[102].icon = ''; // balance
+                        // gameSpecs[103].icon = ''; // feral
+                        // gameSpecs[104].icon = ''; // guardian
+                        // gameSpecs[105].icon = ''; // resto
+                        // gameSpecs[250].icon = ''; // blood
+                        // gameSpecs[251].icon = ''; // frost
+                        // gameSpecs[252].icon = ''; // unholy
+                        gameSpecs[253].icon = 'ability_hunter_bestialdiscipline'; // bm
+                        gameSpecs[254].icon = 'ability_hunter_focusedaim'; // mm
+                        gameSpecs[255].icon = 'ability_hunter_camouflage'; // surv
+                        // gameSpecs[256].icon = ''; // disc
+                        // gameSpecs[257].icon = ''; // holy
+                        // gameSpecs[258].icon = ''; // shadow
+                        // gameSpecs[259].icon = ''; // assa
+                        // gameSpecs[260].icon = ''; // outlaw
+                        // gameSpecs[261].icon = ''; // sub
+                        // gameSpecs[262].icon = ''; // elem
+                        // gameSpecs[263].icon = ''; // enh
+                        // gameSpecs[264].icon = ''; // resto
+                        // gameSpecs[265].icon = ''; // affli
+                        // gameSpecs[266].icon = ''; // demo
+                        // gameSpecs[267].icon = ''; // destro
+                        // gameSpecs[268].icon = ''; // bm
+                        // gameSpecs[269].icon = ''; // ww
+                        // gameSpecs[270].icon = ''; // mw
+                        // gameSpecs[577].icon = ''; // havoc
+                        // gameSpecs[581].icon = ''; // veng
+                        // TODO: add icons for all specs
+
+                        commit('set-game-specs', gameSpecs);
                     });
                 });
             },
@@ -286,22 +381,22 @@ function appStore() {
                 return new Promise((resolve, reject) => {
                     bnapi.wow.character.profile(realm, name).then((profile) => {
                         var result = {
-                            id:                     profile.id,
-                            name:                   profile.name,
-                            gender:                 profile.gender.type,
-                            faction:                profile.faction.type,
-                            race:                   profile.race.id,
-                            class:                  profile.character_class.id,
-                            active_spec:            profile.active_spec.id,
-                            realm:                  profile.realm.slug,
-                            guild:                  profile.guild.name,
-                            level:                  profile.level,
-                            experience:             profile.experience,
-                            achievement_points:     profile.achievement_points,
-                            last_login_timestamp:   profile.last_login_timestamp,
-                            average_item_level:     profile.average_item_level,
-                            equipped_item_level:    profile.equipped_item_level,
-                            active_title:           profile.active_title.display_string
+                            id:                 profile.id,
+                            name:               profile.name,
+                            gender:             profile.gender.type,
+                            faction:            profile.faction.type,
+                            race:               profile.race.id,
+                            class:              profile.character_class.id,
+                            active_spec:        profile.active_spec.id,
+                            realm:              profile.realm.slug,
+                            guild:              profile.guild.name,
+                            level:              profile.level,
+                            experience:         profile.experience,
+                            achievement_points: profile.achievement_points,
+                            last_login:         profile.last_login_timestamp,
+                            average_ilvl:       profile.average_item_level,
+                            equipped_ilvl:      profile.equipped_item_level,
+                            active_title:       profile.active_title.display_string
                         };
                         commit('set-character-profile', { name: key, value: result });
                         resolve(result);
