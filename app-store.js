@@ -105,11 +105,6 @@ function appStore() {
             character: {
                 profile: {},
                 media: {},
-                // talents: {},
-                // stats: {},
-                // items: {},
-                // titles: {},
-                // reputation: {}
             },
             pref: {
                 lang: localStorage.lang === 'ua' ? 'ua' : 'en',
@@ -181,22 +176,7 @@ function appStore() {
             },
             'set-character-media': function (state, payload) {
                 state.character.media[payload.name] = payload.value;
-            },
-            // 'set-character-talents': function (state, payload) {
-            //     state.character.talents[payload.name] = payload.value;
-            // },
-            // 'set-character-stats': function (state, payload) {
-            //     state.character.stats[payload.name] = payload.value;
-            // },
-            // 'set-character-items': function (state, payload) {
-            //     state.character.items[payload.name] = payload.value;
-            // },
-            // 'set-character-titles': function (state, payload) {
-            //     state.character.titles[payload.name] = payload.value;
-            // },
-            // 'set-character-reputation': function (state, payload) {
-            //     state.character.reputation[payload.name] = payload.value;
-            // }
+            }
         }, // end of mutations
         actions: {
             'load-game-data': function ({ state, commit }) {
@@ -404,55 +384,6 @@ function appStore() {
                     });
                 });
             }
-            /*'load-character-stats': function ({ state, commit }, { realm, name }) {
-                var key = name + '-' + realm;
-                if (state.character.stats[key]) {
-                    return state.character.stats[key];
-                }
-                return new Promise((resolve, reject) => {
-                    bnapi.wow.character.stats(state.bnet.apikey, state.bnet.locale, realm, name).then((stats) => {
-                        commit('set-character-stats', { name: key, value: stats });
-                        resolve(stats);
-                    }).catch((error) => {
-                        commit('add-app-message', { error, text: 'Failed to load stats for ' + name + ' from ' + realm });
-                        reject(error);
-                    });
-                });
-            },
-            'load-character-titles': function ({ state, commit }, { realm, name }) {
-                var key = name + '-' + realm;
-                if (state.character.titles[key]) {
-                    return state.character.titles[key];
-                }
-                return new Promise((resolve, reject) => {
-                    bnapi.wow.character.titles(state.bnet.apikey, state.bnet.locale, realm, name).then((titles) => {
-                        var result = {};
-                        titles.forEach((item) => { result[item.id] = item; });
-                        commit('set-character-titles', { name: key, value: result });
-                        resolve(result);
-                    }).catch((error) => {
-                        commit('add-app-message', { error, text: 'Failed to load titles for ' + name + ' from ' + realm });
-                        reject(error);
-                    });
-                });
-            },
-            'load-character-reputation': function ({ state, commit }, { realm, name }) {
-                var key = name + '-' + realm;
-                if (state.character.reputation[key]) {
-                    return state.character.reputation[key];
-                }
-                return new Promise((resolve, reject) => {
-                    bnapi.wow.character.reputation(state.bnet.apikey, state.bnet.locale, realm, name).then((reputation) => {
-                        var result = {};
-                        reputation.forEach((item) => { result[item.id] = item; });
-                        commit('set-character-reputation', { name: key, value: result });
-                        resolve(result);
-                    }).catch((error) => {
-                        commit('add-app-message', { error, text: 'Failed to load reputation for ' + name + ' from ' + realm });
-                        reject(error);
-                    });
-                });
-            }*/
         } // end of actions
     });
 }
